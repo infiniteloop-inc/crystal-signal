@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+    <title>Crystal Signal Pi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- bootstrap CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- bootstrap slider -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.3/css/bootstrap-slider.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.3/bootstrap-slider.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.3/css/bootstrap-slider.css">
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+
+    <head>
+    </head>
+
+    <!-- Style settings. Need to move this into another file in the end -->
+    <style>
+        html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
+
+        #SliderRed .slider-selection {
+            background: red;
+        }
+
+        #SliderGreen .slider-selection {
+            background: green;
+        }
+
+        #SliderBlue .slider-selection {
+            background: blue;
+        }
+
+        #SliderPeriod .slider-selection {
+            background: gray;
+        }
+
+        #SliderRepeat .slider-selection {
+            background: gray;
+        }
+
+        .slider-handle {
+            background-image: -webkit-linear-gradient(top, #dfdfdf 0%, #bebebe 100%);
+            background-image: -o-linear-gradient(top, #dfdfdf 0%, #bebebe 100%);
+            background-image: linear-gradient(to bottom, #dfdfdf 0%, #bebebe 100%);
+            background-repeat: repeat-x;
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffdfdfdf', endColorstr='#ffbebebe', GradientType=0);
+        }
+
+        .block1 { float: left; width: 600px; margin-left: 10px; }
+        .block2 { float: left; width: 600px; margin-left: 10px; }
+        .block3 { float: left; width: 600px; margin-left: 10px; }
+
+        .sliderBox {margin-left:10px; float: left; width: 250px; }
+        .buttonBox {float: left; width: 290px; margin-left:10px; }
+
+        .innerButtonBox1 {margin: 0 auto; width: 300px}
+        .innerButtonBox2 {margin: 0 auto; width: 202px}
+        .innerInputBox {width: 480px}
+
+        .horizontalSpacer { margin-top:15px;}
+    </style>
+    <body>
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-default" >
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="./">クリスタルシグナル・Pi</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="./">Control Panel</a></li>
+                    <li><a href="./log.html">Log</a></li>
+                    <li><a href="/ctrl/">ctrl</a></li> 
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <div class="container">
+            <div class="row">
+                <div class="block1">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h4>Settings</h4>
+                        </div>
+                        <div class="panel-body">
+                            <div class="sliderBox">
+                                <br>
+                                <input id="sldrRed" data-slider-id='SliderRed' type="text" data-slider-min="0" data-slider-max="255" data-slider-step="1" data-slider-value="100"/>
+                                <br><br><br>
+                                <input id="sldrGreen" data-slider-id='SliderGreen' type="text" data-slider-min="0" data-slider-max="255" data-slider-step="1" data-slider-value="80"/>
+                                <br><br><br>
+                                <input id="sldrBlue" data-slider-id='SliderBlue' type="text" data-slider-min="0" data-slider-max="255" data-slider-step="1" data-slider-value="0"/>
+
+                            </div>
+                            <div class="buttonBox">
+                                <br>
+                                <input id="sldrPeriod" data-slider-id='SliderPeriod' type="text" data-slider-min="100" data-slider-max="6000" data-slider-step="1" data-slider-value="1000"/>
+                                <br><br><br>
+                                <input id="sldrRepeat" data-slider-id='SliderRepeat' type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="0"/>
+                                <br>
+
+                                <div class="innerButtonBox1">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnOn">点灯</button>
+                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnBlink">点滅</button>
+                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnAsynchBlink">非同期点滅</button><br>
+                                    </div>
+                                </div>
+                                <div class="innerButtonBox2">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnHtml">Html</button>
+                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnJson">Json</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="innerInputBox">
+                                <div class="form-group">
+                                    <label for="usr">Info Text:</label>
+                                    <input type="text" class="form-control" id="infoText"> 
+                                </div>
+                                <div class="form-group">
+                                    <label for="usr">QueryString:</label>
+                                    <input type="text" class="form-control" id="showQueryString"> 
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-warning horizontalSpacer" name="btnAckAlarm">アラートを消す</button>
+                            <button type="button" class="btn btn-default horizontalSpacer" name="btnSend">Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="block2">
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
+                            <h4>Status Response</h4>
+                        </div>
+                        <div class="panel-body">
+                            <div id="statusText">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- Main content end-->
+
+        <script>
+            $(document).ready(function(){
+                var SenderObj = {
+                    color:  [100,80,0],
+                    mode: 0,
+                    period: 1000,
+                    repeat: 0,
+                    json: 0,
+                    info: "",
+                    updateMode: function(val){
+                        this.mode = val
+                        this.send();
+                    },
+                    updatePeriod: function(val){
+                        this.period = val; 
+                        this.send();
+                    },
+                    updateRepeat: function(val){
+                        this.repeat = val;          
+                        this.send();
+                    },
+                    updateJson: function(val){
+                        this.json = val; 
+                        this.send();
+                    },
+                    init: function(){
+                        $('button[name=btnOn]').addClass("btn-success");
+                        $('button[name=btnHtml]').addClass("btn-success");
+                    },
+                    updateRed: function(val){
+                        this.color[0] = val;
+                        this.send();
+                    },
+                    updateGreen: function(val){
+                        this.color[1] = val;
+                        this.send();
+                    },
+                    updateBlue: function(val){
+                        this.color[2] = val;
+                        this.send();
+                    },
+                    updateInfo: function(val){
+                        this.info = val;
+                        this.send();
+                    },
+                    send: function(){
+                        queryString = '?color=' + this.color[0] + ',' + this.color[1] + ',' + this.color[2] +
+                            '&mode=' + this.mode + '&repeat=' + this.repeat + '&period=' + this.period + 
+                            '&json=' + this.json
+                            if (this.info !== ""){
+                                queryString += '&info=' + this.info;
+                            }
+                        $("#showQueryString").val(window.location.href + "ctrl/" + queryString);
+                        $.get("ctrl/simpleController.py" + queryString, function(data, status){
+                            $("#statusText").html(data); 
+                        });
+                    }
+                };
+
+                // Text field
+                $("#infoText").change(infoTextChange);
+
+                function infoTextChange(){
+                    SenderObj.updateInfo($("#infoText").val());
+                }
+
+                // SLIDERS
+                var sldrRed = $('#sldrRed').slider({
+                    formatter: function(value) {
+                        return 'red: ' + value;
+                    }
+                });
+
+                var sldrGreen = $('#sldrGreen').slider({
+
+                    formatter: function(value) {
+                        return 'green: ' + value;
+                    }
+                });
+
+                var sldrBlue = $('#sldrBlue').slider({
+                    formatter: function(value) {
+                        return 'blue: ' + value;
+                    }
+                });
+
+                var sldrRepeat = $('#sldrRepeat').slider({
+                    formatter: function(value) {
+                        return 'Repeat: ' + value;
+                    }
+                });
+                var sldrPeriod = $('#sldrPeriod').slider({
+                    formatter: function(value) {
+                        return 'Period: ' + value;
+                    }
+                });
+
+                sldrRed.on("slideStop", function(slideEvt) {
+                    SenderObj.updateRed(slideEvt.value);
+                });
+
+                sldrGreen.on("slideStop", function(slideEvt) {
+                    SenderObj.updateGreen(slideEvt.value);
+                });
+
+                sldrBlue.on("slideStop", function(slideEvt) {
+                    SenderObj.updateBlue(slideEvt.value);
+                });
+
+                sldrRepeat.on("slideStop", function(slideEvt) {
+                    SenderObj.updateRepeat(slideEvt.value);
+                });
+                sldrPeriod.on("slideStop", function(slideEvt) {
+                    SenderObj.updatePeriod(slideEvt.value);
+                });
+
+                    // BUTTONS
+                $('button[name=btnAckAlarm]').click(function(){
+                    $("#showQueryString").val("?ack=1");
+                    $.get('ctrl/simpleController.py?ack=1', function(data, status){
+                        $("#statusText").html(data); 
+                    });
+                });
+                $('button[name=btnSend]').click(function(){
+                    SenderObj.send();
+                });
+                $('button[name=btnOn]').click(function(){
+                    $('button[name=btnAsynchBlink]').removeClass("btn-success");
+                    $('button[name=btnBlink]').removeClass("btn-success");
+                    $('button[name=btnOn]').addClass("btn-success");
+                    SenderObj.updateMode(0);
+                });
+                $('button[name=btnBlink]').click(function(){
+                    $('button[name=btnAsynchBlink]').removeClass("btn-success");
+                    $('button[name=btnBlink]').addClass("btn-success");
+                    $('button[name=btnOn]').removeClass("btn-success");
+                    SenderObj.updateMode(1);
+                });
+                $('button[name=btnAsynchBlink]').click(function(){
+                    $('button[name=btnAsynchBlink]').addClass("btn-success");
+                    $('button[name=btnBlink]').removeClass("btn-success");
+                    $('button[name=btnOn]').removeClass("btn-success");
+                    SenderObj.updateMode(2);
+                });
+                $('button[name=btnHtml]').click(function(){
+                    $('button[name=btnJson]').removeClass("btn-success")
+                        $('button[name=btnHtml]').addClass("btn-success")
+                        SenderObj.updateJson(0);
+                });
+                $('button[name=btnJson]').click(function(){
+                    $('button[name=btnJson]').addClass("btn-success")
+                        $('button[name=btnHtml]').removeClass("btn-success")
+                        SenderObj.updateJson(1);
+                });
+                SenderObj.init();
+            });
+        </script>
+    </body>
+</html>
+
+
