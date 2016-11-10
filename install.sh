@@ -84,7 +84,7 @@ function install_pigpiod
 
 function install_apache
 {
-    $APT update && $APT install -y apache2 php5
+    $APT update && $APT install -y apache2
 
     $SED -i -e '/.*#AddHandler cgi-script .cgi$/i \\tAddHandler cgi-script .py' /etc/apache2/mods-available/mime.conf
     $A2ENMOD cgi
