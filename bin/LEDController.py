@@ -153,6 +153,8 @@ class LEDController:
                 else:
                     self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index] - 
                         self.statusDict['color'][index]*(math.cos(self.stepCounterM2[index]/255.0*math.pi - math.pi)/2.0 + 0.5)))
+        # sleep for 2ms
+        time.sleep(0.002)
     def update(self):
         if self.pi1.read(4):
             self.newStatusFlag = True
