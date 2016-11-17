@@ -55,7 +55,9 @@ class LEDController:
         self.setupPWM()
         self.resetUpdateParaMode1()
         self.resetUpdateParaMode2()
+        self.newStatusFlag = True;
     def updateStatus(self, query_string):
+        self.newStatusFlag = True;
         self.getLogData = 0;
         colorWasSet = False
         self.queryString = query_string
@@ -107,13 +109,17 @@ class LEDController:
             #clonedDict['querystring'] = self.queryString
             self.logList.insert(0, clonedDict)
             if len(self.logList) > 500:
-                self.logList.pop()  #delete last item from list
+                self.logList.pop()  # delete last item from list
 
             self.resetUpdateParaMode1()
             self.resetUpdateParaMode2()
     def constantOn(self):
-        for index, pin in enumerate(self.pinList):
-            self.pi1.set_PWM_dutycycle(pin, self.statusDict['color'][index])
+        if self.newStatusFlag:
+            for index, pin in enumerate(self.pinList):
+                self.pi1.set_PWM_dutycycle(pin, self.statusDict['color'][index])
+            self.newStatusFlag = False
+        # sleep for 100ms
+        time.sleep(0.1)
     def blinking(self):
         if self.stepCounter < 255:
             self.stepCounter += 1
@@ -149,10 +155,15 @@ class LEDController:
                         self.statusDict['color'][index]*(math.cos(self.stepCounterM2[index]/255.0*math.pi - math.pi)/2.0 + 0.5)))
     def update(self):
         if self.pi1.read(4):
+            self.newStatusFlag = True
             self.statusDict['ack'] = 1;
             self.setAcksInLogList()
+            time.sleep(0.1)
         if self.statusDict['ack'] != 0 or self.repeatEnded:
-            self.resetLEDs()
+            if self.newStatusFlag:
+                self.resetLEDs()
+                self.newStatusFlag = False
+            time.sleep(0.1)
         else:
             if self.statusDict['mode'] == 0: 
                 self.constantOn()
@@ -160,6 +171,9 @@ class LEDController:
                 self.blinking()
             elif self.statusDict['mode'] == 2:
                 self.asynchBlinking()
+            else:
+                # sleep for 100ms if there's nothing to do
+                time.sleep(0.1)
     def getTimeInMilliSec(self):
         return int(time.time()*1000)
     def setUpMode2Parameters(self):
@@ -221,24 +235,24 @@ class LEDController:
             for key in self.listOfKeys:
                 argList += key + ": " + urllib.unquote(str(ent[key])) + "<br>\r\n"
             if ent['ack'] == 0:
-                html += '''<tr class="danger">''' 
+                html += '<tr class="danger">' 
             else:
-                html += '''<tr class="success">''' 
+                html += '<tr class="success">' 
             html += "<td>" + ent['date'] + "</td>"
             html += "<td>" + ent['remote_addr'] + "</td>"
             html += '''<td><a href="javascript://" title="Parameter" data-toggle="popover" data-placement="right"
-                         data-html="true" data-content="''' + argList + '''">color=''' + \
-                         str(ent['color'][0]) + "," + str(ent['color'][1]) + "," + str(ent['color'][2]) + '''...</a></td>'''
+                         data-html="true" data-content="''' + argList + '">color=' + \
+                         str(ent['color'][0]) + "," + str(ent['color'][1]) + "," + str(ent['color'][2]) + '...</a></td>'
             if info == "":
                 html += "<td></td>" 
             elif len(info) <= 9:
                 # in case the info text is quite small we don't need to add to the end of the string "..."
                 html += '''<td><a href="javascript://" title="Info" data-toggle="popover" data-placement="right"
-                            data-html="true" data-content="''' + info  + '''">''' + info  + '''</a></td>'''
+                            data-html="true" data-content="''' + info  + '">' + info  + '</a></td>'
             else:
                 # we are dealing with a long info text. show only the first 9 characters and add "..." to the end
                 html += '''<td><a href="javascript://" title="Info" data-toggle="popover" data-placement="right"
-                            data-html="true" data-content="''' + info  + '''">''' + info[:9]  + '''...</a></td>'''
+                            data-html="true" data-content="''' + info  + '">' + info[:9]  + '...</a></td>'
             if ent['ack'] == 0:
                 html += "<td>pending</td></tr>"
             else:
@@ -264,7 +278,7 @@ class LEDController:
         self.risingEdgeM2 = [True, True, True]
     def setupPWM(self):
         for pin in self.pinList:
-            self.pi1.set_PWM_frequency(pin,200)
+            self.pi1.set_PWM_frequency(pin,600)
             self.pi1.set_PWM_range(pin, 1000)
             self.pi1.set_PWM_dutycycle(pin, 0)
     def checkBoundries(self):
@@ -302,4 +316,3 @@ while True:
         raise
     except:
         raise
-
