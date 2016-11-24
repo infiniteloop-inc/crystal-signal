@@ -252,9 +252,9 @@ class LEDController:
                 html += '''<td><a href="javascript://" title="Info" data-toggle="popover" data-placement="right"
                             data-html="true" data-content="''' + info  + '">' + info  + '</a></td>'
             else:
-                # we are dealing with a long info text. show only the first 9 characters and add "..." to the end
+                cutOffCor = self.getStringCutOffCorVal(info)
                 html += '''<td><a href="javascript://" title="Info" data-toggle="popover" data-placement="right"
-                            data-html="true" data-content="''' + info  + '">' + info[:9]  + '...</a></td>'
+                            data-html="true" data-content="''' + info  + '">' + info[:9+cutOffCor]  + '...</a></td>'
             if ent['ack'] == 0:
                 html += "<td>pending</td></tr>"
             else:
@@ -281,7 +281,7 @@ class LEDController:
     def setupPWM(self):
         for pin in self.pinList:
             self.pi1.set_PWM_frequency(pin,600)
-            self.pi1.set_PWM_range(pin, 1000)
+            self.pi1.set_PWM_range(pin, 1000)  #1000
             self.pi1.set_PWM_dutycycle(pin, 0)
     def checkBoundries(self):
         for index, _ in enumerate(self.pinList):
@@ -289,6 +289,17 @@ class LEDController:
                 self.statusDict['color'][index] = 255
             elif self.statusDict['color'][index] < 0:
                 self.statusDict['color'][index] = 0
+    def getStringCutOffCorVal(self, string):
+        notASCIICounter = 0
+        cutOffCor = 0
+        for i in range(0,9):
+            try:
+                string[i].decode('ascii')
+            except:
+                notASCIICounter += 1
+        tmp = notASCIICounter%3
+        cutOffCor = 3-tmp if tmp>0 else tmp 
+        return cutOffCor
         
 
 # - - - - - - - - - - - - - - - - - 
