@@ -50,6 +50,8 @@ WORKDIR=/tmp
 DOCUMENTROOT=/var/www/html
 CGIDIR=${DOCUMENTROOT}/ctrl
 
+JQUERY=jquery-3.1.1.min.js
+
 SERVERVER=master
 
 while getopts :r: OPT
@@ -148,10 +150,38 @@ ExecStart=/usr/local/bin/LEDController.py
 WantedBy=multi-user.target
 EOF
 
-    $RSYNC -avz --delete ${WORKDIR}/crystal-signal-${SERVERVER}/html/ $DOCUMENTROOT/
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ $DOCUMENTROOT/
     $CHMOD +x $CGIDIR/*.py
 
     $RM -rf ${WORKDIR}/crystal-signal-${SERVERVER}
+
+    if [ ! -d "${DOCUMENTROOT}/css" ]; then
+        mkdir ${DOCUMENTROOT}/css
+    fi
+
+    if [ ! -d "${DOCUMENTROOT}/js" ]; then
+        mkdir ${DOCUMENTROOT}/js
+    fi
+
+    # install jQuery
+    if [ ! -f "${DOCUMENTROOT}/js/${JQUERY}" ]; then
+        $WGET -O ${DOCUMENTROOT}/js/${JQUERY} "https://code.jquery.com/${JQUERY}"
+    fi
+
+    # install bootstrap
+    if [ ! -f "${DOCUMENTROOT}/css/bootstrap-3.3.7.min.css" ]; then
+        $WGET -O ${DOCUMENTROOT}/css/bootstrap-3.3.7.min.css "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap/v3-dev/dist/css/bootstrap.min.css"
+    fi
+    if [ ! -f "${DOCUMENTROOT}/js/bootstrap-3.3.7.min.js" ]; then
+        $WGET -O ${DOCUMENTROOT}/js/bootstrap-3.3.7.min.js "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap/v3-dev/dist/js/bootstrap.min.js"
+    fi
+    # install bootstrap-slider
+    if [ ! -f "${DOCUMENTROOT}/css/bootstrap-slider-9.5.1.min.css" ]; then
+        $WGET -O ${DOCUMENTROOT}/css/bootstrap-slider-9.5.1.min.css "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap-slider/master/dist/css/bootstrap-slider.min.css"
+    fi
+    if [ ! -f "${DOCUMENTROOT}/js/bootstrap-slider-9.5.1.min.js" ]; then
+        $WGET -O ${DOCUMENTROOT}/js/bootstrap-slider-9.5.1.min.js "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap-slider/master/dist/bootstrap-slider.min.js"
+    fi
 
     $SYSTEMCTL enable LEDController.service
     $SYSTEMCTL restart LEDController.service
