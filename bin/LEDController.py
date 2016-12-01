@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import sys
 import math
 import time
 import json
@@ -10,6 +11,9 @@ import random
 import datetime
 import threading
 import SocketServer
+from os import listdir
+from os.path import isfile, join
+from ButtonController import ButtonController
 
 # - - - - - - - - - - - - - - - - 
 # - - - - SOCKET CLASSES  - - - -
@@ -30,6 +34,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 class LEDController:
     def __init__(self):
         self.pi1 = pigpio.pi('localhost', 8888)
+        self.buttonController = ButtonController()
         self.pinList = [14, 15, 18]
         self.pi1.set_mode(4, pigpio.INPUT)
         self.pi1.set_pull_up_down(4, pigpio.PUD_OFF)
@@ -38,7 +43,7 @@ class LEDController:
                         'mode': 0,          # 0 -> constant on, 1 -> blinking, 2: asynchron blinking 
                       'period': 1000,       # in milliseconds
                       'repeat': 0,          # if x > 0 -> stop after blinking x times 
-                         'ack': 0,          # was the current alarm acknowledged? 0 -> NO, 1 -> YES
+                         'ack': 1,          # was the current alarm acknowledged? 0 -> NO, 1 -> YES
                         'json': 0,          # 0 -> status response in HTML, 1 -> status response in Json
                         'info': "",         # info
                         'remote_addr': 0,   # Where was the request sent from?
@@ -56,13 +61,16 @@ class LEDController:
         self.resetUpdateParaMode1()
         self.resetUpdateParaMode2()
         self.newStatusFlag = True;
+        self.argList = []
     def updateStatus(self, query_string):
         self.newStatusFlag = True;
-        self.getLogData = 0;
+        self.getLogData = False;
+        self.getDropDownData = False;
+        self.settingUpButtons = False;
         colorWasSet = False
         self.queryString = query_string
-        arg_list=query_string.split('&')
-        for arg in arg_list:                # First, we need to check for a 'ack' and 'json' 
+        self.argList=query_string.split('&')
+        for arg in self.argList:                # First, we need to check for a 'ack' and 'json' 
             if arg is not "":
                 key, value=arg.split('=')       # and wether or not a color was set
                 key = key.lower()
@@ -78,7 +86,13 @@ class LEDController:
                         self.deleteLog()
                 elif key == 'getlogdata':
                     if int(value) != 0:
-                        self.getLogData = 1
+                        self.getLogData = True
+                elif key == 'getdropdowndata':
+                    if int(value) != 0:
+                        self.getDropDownData = True
+                elif key == 'settingupbuttons':
+                    if int(value) != 0:
+                        self.settingUpButtons = True
                 elif key == 'json':
                     if int(value) != 0:
                         self.statusDict['json'] = 1
@@ -88,7 +102,7 @@ class LEDController:
                     colorWasSet = True
         if  colorWasSet:   # Only load the other parameters if at least 1 color parameter was sent  
             self.resetStatusDict()                        
-            for arg in arg_list:
+            for arg in self.argList:
                 key, value=arg.split('=')
                 key = key.lower()
                 if key in self.statusDict:
@@ -101,16 +115,12 @@ class LEDController:
                             self.statusDict[key] = int(value)
                         except ValueError:
                             self.statusDict[key] = value
-                        
             self.checkBoundries()
-
             clonedDict = dict(self.statusDict)
             clonedDict['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            #clonedDict['querystring'] = self.queryString
             self.logList.insert(0, clonedDict)
             if len(self.logList) > 500:
-                self.logList.pop()  # delete last item from list
-
+                self.logList.pop()  #delete last item from list
             self.resetUpdateParaMode1()
             self.resetUpdateParaMode2()
     def constantOn(self):
@@ -156,11 +166,7 @@ class LEDController:
         # sleep for 2ms
         time.sleep(0.002)
     def update(self):
-        if self.pi1.read(4):
-            self.newStatusFlag = True
-            self.statusDict['ack'] = 1;
-            self.setAcksInLogList()
-            time.sleep(0.1)
+        self.buttonController.update(self.pi1.read(4), self.statusDict['ack'])
         if self.statusDict['ack'] != 0 or self.repeatEnded:
             if self.newStatusFlag:
                 self.resetLEDs()
@@ -178,8 +184,6 @@ class LEDController:
                 time.sleep(0.1)
     def getTimeInMilliSec(self):
         return int(time.time()*1000)
-    def setUpMode2Parameters(self):
-        pass
     def resetStatusDict(self):
         self.statusDict['color'] = [0,0,0]
         self.statusDict['period'] = 1000
@@ -198,7 +202,19 @@ class LEDController:
         self.stepCounter = 0
         self.risingEdge = True
     def getStatus(self):
-        if self.getLogData == 0:
+        if self.getLogData:
+            # Here we need to return a nicely formatted table!
+            # something like this:
+            return self.getTableHTML()
+        elif self.getDropDownData:
+            # Here we need to return some Bootstrap Dropdown menus!
+            return self.getDropDownHTML()
+        elif self.settingUpButtons:
+            # This is the area where we manage the buttonSettings.json file. 
+            # we do not even need to return anything.
+            self.setButtonSettings()
+            return ""
+        else:
             if self.statusDict['json'] == 0:
                 argList = ""
                 argExplanation = ""
@@ -212,10 +228,6 @@ class LEDController:
                 return response 
             else:
                 return json.dumps(self.statusDict)
-        else:
-            # Here we need to return a nicely formatted table!
-            # something like this:
-             return self.getTableHTML()
     def deleteLog(self):
         self.logList = []
     def getTableHTML(self):
@@ -236,10 +248,7 @@ class LEDController:
             argList = ""
             for key in self.listOfKeys:
                 argList += key + ": " + urllib.unquote(str(ent[key])) + "<br>\r\n"
-            if ent['ack'] == 0:
-                html += '<tr class="danger">' 
-            else:
-                html += '<tr class="success">' 
+            html += '<tr class="{0}">'.format("danger" if (ent['ack'] == 0) else "success")
             html += "<td>" + ent['date'] + "</td>"
             html += "<td>" + ent['remote_addr'] + "</td>"
             html += '''<td><a href="javascript://" title="Parameter" data-toggle="popover" data-placement="right"
@@ -266,6 +275,25 @@ class LEDController:
                     $('[data-toggle="popover"]').popover();
                   </script>'''
         return html
+    def getDropDownHTML(self):
+        keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4']
+        htmlList = []
+        buttonScriptFileNames = self.getButtonScriptNames()
+        buttonScriptFileNames.append("Do Nothing")
+        settings = self.getButtonSettings() 
+
+        for ent in keyList:    # There are 4 DropDown Buttons.
+            html =  ''' <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">'''
+            html +=         urllib.unquote(settings[ent]) + '''<span class="caret"></span></button>
+                            <ul class="dropdown-menu">'''
+            for entry in buttonScriptFileNames:
+                html +=     '<li><a href="#">' + entry + '</a></li>'
+
+            html += '''     </ul>
+                        </div>'''
+            htmlList.append(html)
+        return json.dumps(htmlList) 
     def setAcksInLogList(self):
         for ent in self.logList:
             if 'ack' in ent:
@@ -300,7 +328,32 @@ class LEDController:
         tmp = notASCIICounter%3
         cutOffCor = 3-tmp if tmp>0 else tmp 
         return cutOffCor
-        
+    def getButtonScriptNames(self):
+        onlyfiles = [f for f in listdir("/usr/local/bin/ButtonScripts") if isfile(join("/usr/local/bin/ButtonScripts", f))]
+        return onlyfiles
+    def setButtonSettings(self):
+        keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4']
+        # settings contains the current ButtonSettings.json data
+        settings = self.getButtonSettings()
+        for arg in self.argList:                 
+            if arg is not "":
+                key, value = arg.split('=')      
+                key = key.lower()
+                for ent in keyList:
+                    if key == ent: 
+                        settings[ent] = value
+        with open('/usr/local/bin/ButtonSettings.json', 'w+') as outfile:
+                json.dump(settings, outfile)
+    def getButtonSettings(self):
+        if not isfile("/usr/local/bin/ButtonSettings.json"):
+            buttonSettingsInit = {'dropdown1': "Do Nothing",
+                                  'dropdown2': "Do Nothing",
+                                  'dropdown3': "Do Nothing",
+                                  'dropdown4': "Do Nothing"}
+            with open('/usr/local/bin/ButtonSettings.json', 'w+') as outfile:
+                    json.dump(buttonSettingsInit, outfile)
+        with open('/usr/local/bin/ButtonSettings.json') as data:
+            return json.load(data)
 
 # - - - - - - - - - - - - - - - - - 
 # SETTING UP SOCKET & CONTROLLER  -

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <title>Crystal Signal Pi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+
+    <head>
+        <!-- jQuery -->
+        <Script src="./js/jquery-3.1.1.min.js"></script> 
+
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="./css/bootstrap-3.3.7.min.css">
+        <script src="./js/bootstrap-3.3.7.min.js"></script> 
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+        <style>
+            html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
+            .DropDownSpan { display: table-cell; vertical-align: middle; }
+            .block1 { float: left; width: 600px; margin-left: 10px; }
+            .horizontalSpacer { margin-top:15px;}
+            .buttonBox {float: left; width: 290px; margin-left:10px; }
+            .boxLeft {margin-left:10px; float: left; width: 350px; display: table; }
+            .boxRight {float: left; width: 290px; margin-left:10px; }
+        </style>
+    </head>
+    <body>
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-default" >
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="./">クリスタルシグナル・Pi</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="./">Control Panel</a></li>
+                    <li><a href="./log.html">Log</a></li>
+                    <li class="active"><a href="./settings.html">Settings</a></li>
+                    <li><a href="/ctrl/">ctrl</a></li> 
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <div class="container">
+            <div class="row">
+                <div class="block1"> 
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h4>Button Settings</h4>
+                        </div>
+                        <div class="panel-body">
+                            <!-- dropdown menus! -->
+                            </br>
+                            <div class="boxLeft"> 
+                                <span class="DropDownSpan"> 普通押し：</span>
+                                <div id="dropdown1" style="float: right"></div>
+                            </div>
+                            </br>
+                            </br>
+                            <div class="boxLeft"> 
+                                <span class="DropDownSpan"> 長押し：</span>
+                                <div id="dropdown3" style="float: right"></div>
+                            </div>
+                            </br>
+                            </br>
+                            <div class="boxLeft"> 
+                                <span class="DropDownSpan"> 普通押し、アラート実行中：</span>
+                                <div id="dropdown2" style="float: right"></div>
+                            </div>
+                            </br>
+                            </br>
+                            <div class="boxLeft"> 
+                                <span class="DropDownSpan"> 長押し、アラート実行中：</span>
+                                <div id="dropdown4" style="float: right"></div>
+                            </div>
+                            </br>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- Main content end-->
+
+        <script>
+            function getDropDownButtons(){
+                $.get('ctrl/simpleController.py?getdropdowndata=1', function(data, status){
+                    //console.log(data);
+                    parsedData = JSON.parse(data);
+                    $("#dropdown1").html(parsedData[0]); 
+                    $("#dropdown2").html(parsedData[1]); 
+                    $("#dropdown3").html(parsedData[2]); 
+                    $("#dropdown4").html(parsedData[3]); 
+                });
+            } 
+            $(document).ready(function(){
+                getDropDownButtons();
+
+                $(this).on("click","#dropdown1 a", function(e){ 
+                    tmpText = $(this).text();
+                    $("#dropdown1").find('button[name=dropDown1]').text(tmpText);
+                    $("#dropdown1").find('button[name=dropDown1]').append('<span class="caret"></span>')
+                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown1=' + tmpText, function(data, status){
+                    });
+                });
+                $(this).on("click","#dropdown2 a", function(e){ 
+                    tmpText = $(this).text();
+                    $("#dropdown2").find('button[name=dropDown1]').text(tmpText);
+                    $("#dropdown2").find('button[name=dropDown1]').append('<span class="caret"></span>')
+                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown2=' + tmpText, function(data, status){
+                    });
+                });
+                $(this).on("click","#dropdown3 a", function(e){ 
+                    tmpText = $(this).text();
+                    $("#dropdown3").find('button[name=dropDown1]').text(tmpText);
+                    $("#dropdown3").find('button[name=dropDown1]').append('<span class="caret"></span>')
+                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown3=' + tmpText, function(data, status){
+                    });
+                });
+                $(this).on("click","#dropdown4 a", function(e){ 
+                    tmpText = $(this).text();
+                    $("#dropdown4").find('button[name=dropDown1]').text(tmpText);
+                    $("#dropdown4").find('button[name=dropDown1]').append('<span class="caret"></span>')
+                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown4=' + tmpText, function(data, status){
+                    });
+                });
+
+            });
+        </script>
+        <!-- 日本語をたくさん書けばvimがエンコーダーを正しく選んでくれる。
+            そのためのコメントにすぎない。-->
+    </body>
+</html>
+
