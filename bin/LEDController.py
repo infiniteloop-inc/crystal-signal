@@ -348,8 +348,8 @@ class LEDController:
         if not isfile("/usr/local/bin/ButtonSettings.json"):
             buttonSettingsInit = {'dropdown1': "Do Nothing",
                                   'dropdown2': "Do Nothing",
-                                  'dropdown3': "Do Nothing",
-                                  'dropdown4': "Do Nothing"}
+                                  'dropdown3': "Ack.sh",
+                                  'dropdown4': "Ack.sh"}
             with open('/usr/local/bin/ButtonSettings.json', 'w+') as outfile:
                     json.dump(buttonSettingsInit, outfile)
         with open('/usr/local/bin/ButtonSettings.json') as data:

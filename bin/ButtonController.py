@@ -33,7 +33,7 @@ class ButtonController:
         elif not buttonStatus and self.buttonPressedFlag:
             # We get in here when the button was pressed but isn't pressed anymore
             self.buttonReleasedCounter += 1;
-            if self.buttonReleasedCounter >= 10:
+            if self.buttonReleasedCounter >= 2:
                 self.buttonPressedFlag = False
                 self.helperFlag1 = False
                 self.buttonReleasedCounter = 0
