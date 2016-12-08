@@ -57,6 +57,7 @@ class LEDController:
                           'json': "0 -> status response in HTML, 1 -> status response in Json",
                           'info': "information about the alarm"}
         self.logList = []
+        self.brightness = self.getBrightnessSetting()
         self.setupPWM()
         self.resetUpdateParaMode1()
         self.resetUpdateParaMode2()
@@ -67,12 +68,13 @@ class LEDController:
         self.getLogData = False;
         self.getDropDownData = False;
         self.settingUpButtons = False;
+        self.settingUpSettings = False;
         colorWasSet = False
         self.queryString = query_string
         self.argList=query_string.split('&')
-        for arg in self.argList:                # First, we need to check for a 'ack' and 'json' 
+        for arg in self.argList:                 
             if arg is not "":
-                key, value=arg.split('=')       # and wether or not a color was set
+                key, value=arg.split('=')       
                 key = key.lower()
                 if key == 'ack':
                     if int(value) != 0:
@@ -93,6 +95,9 @@ class LEDController:
                 elif key == 'settingupbuttons':
                     if int(value) != 0:
                         self.settingUpButtons = True
+                elif key == 'settingupsettings':
+                    if int(value) != 0:
+                        self.settingUpSettings = True
                 elif key == 'json':
                     if int(value) != 0:
                         self.statusDict['json'] = 1
@@ -214,6 +219,13 @@ class LEDController:
             # we do not even need to return anything.
             self.setButtonSettings()
             return ""
+        elif self.settingUpSettings:
+            # This is the erea where we manage the Settings.json file.
+            # we do not even need to return anything.
+            self.setSettings()
+            self.brightness = self.getBrightnessSetting()
+            self.setupPWM()
+            return ""
         else:
             if self.statusDict['json'] == 0:
                 argList = ""
@@ -309,7 +321,7 @@ class LEDController:
     def setupPWM(self):
         for pin in self.pinList:
             self.pi1.set_PWM_frequency(pin,600)
-            self.pi1.set_PWM_range(pin, 1000)  #1000
+            self.pi1.set_PWM_range(pin, 255 + int(745*(255-self.brightness)/255.0))  #1000
             self.pi1.set_PWM_dutycycle(pin, 0)
     def checkBoundries(self):
         for index, _ in enumerate(self.pinList):
@@ -348,12 +360,50 @@ class LEDController:
         if not isfile("/usr/local/bin/ButtonSettings.json"):
             buttonSettingsInit = {'dropdown1': "Do Nothing",
                                   'dropdown2': "Do Nothing",
-                                  'dropdown3': "Ack.sh",
-                                  'dropdown4': "Ack.sh"}
+                                  'dropdown3': "Do Nothing",
+                                  'dropdown4': "Do Nothing"}
             with open('/usr/local/bin/ButtonSettings.json', 'w+') as outfile:
                     json.dump(buttonSettingsInit, outfile)
         with open('/usr/local/bin/ButtonSettings.json') as data:
             return json.load(data)
+    def getSettings(self):
+        if not isfile("/usr/local/bin/Settings.json"):
+            SettingsInit = {'brightness': 60}
+            with open('/usr/local/bin/Settings.json', 'w+') as outfile:
+                    json.dump(SettingsInit, outfile)
+        with open('/usr/local/bin/Settings.json') as data:
+            return json.load(data)
+    def getBrightnessSetting(self):
+        settingsDict = self.getSettings()
+        tmp = settingsDict['brightness']
+        if tmp <= 255 and tmp >= 0:
+            return tmp
+        elif tmp > 255:
+            return 255
+        else:
+            return 0
+        return settingsDict['brightness']
+    def setSettings(self):
+        # sets one Settings entry (parameter-value pair in self.argList)
+        keyList = ['brightness']
+        # settings contains the current Settings.json data
+        settings = self.getSettings()
+        for arg in self.argList:                 
+            if arg is not "":
+                key, value = arg.split('=')      
+                key = key.lower()
+                for ent in keyList:
+                    if key == ent: 
+                        try: # Test weather or not the thing can be converted to an int
+                            settings[ent] = int(value)
+                        except ValueError:
+                            # we expect the all the entries in Settings.json to be convertable to int
+                            # if it isn't, we do nothing
+                            pass
+        with open('/usr/local/bin/Settings.json', 'w+') as outfile:
+                json.dump(settings, outfile)
+
+
 
 # - - - - - - - - - - - - - - - - - 
 # SETTING UP SOCKET & CONTROLLER  -
@@ -382,3 +432,13 @@ while True:
         raise
     except:
         raise
+
+
+# - - - - - - - - - - - - - - - - 
+# - - - - - - MEMO  - - - - - - -
+# - - - - - - - - - - - - - - - -
+
+# As you probaply can see, we got a brightness parameter here.
+# now we need to check for incoming strings. If there is 
+# some brightness nerd we need to write the val into the file
+# But when should we s
