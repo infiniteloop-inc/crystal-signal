@@ -3,13 +3,16 @@
 #
 # *** How to use ***
 #
-# 何も考えずにフルインストール
+# 下記のinstallと同等
 # $ sudo install.sh
 #
 # OSをアップデートせずにサーバープログラムだけをインストール
 # $ sudo install.sh install
 #
-# バージョン1.1を指定してフルインストール
+# OSアップデートとタイムゾーンのセットをした上でフルインストール
+# $ sudo install.sh fullinstall
+#
+# バージョン1.1を指定してインストール
 # $ sudo install.sh -r 1.1
 #
 # サーバープログラムのみを最新にアップデート
@@ -208,9 +211,14 @@ case "$1" in
         install_apache
         install_crystalsignal
         ;;
-    *)
+    "fullinstall")
         os_update
         set_timezone
+        install_pigpiod
+        install_apache
+        install_crystalsignal
+        ;;
+    "*")
         install_pigpiod
         install_apache
         install_crystalsignal
