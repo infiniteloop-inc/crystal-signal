@@ -57,6 +57,8 @@ JQUERY=jquery-3.1.1.min.js
 
 SERVERVER=master
 
+APT_UPDATE=0
+
 while getopts :r: OPT
 do
     case $OPT in
@@ -70,9 +72,18 @@ done
 
 shift $(($OPTIND - 1))
 
+function apt_update
+{
+    if [ $APT_UPDATE -eq 0 ]; then
+        $APT update
+        APT_UPDATE=1
+    fi
+}
+
 function os_update
 {
-    $APT update && $APT full-upgrade -y
+    apt_update
+    $APT full-upgrade -y
 }
 
 function set_timezone
@@ -82,14 +93,16 @@ function set_timezone
 
 function install_pigpiod
 {
-    $APT update && $APT install -y pigpio python-pigpio
+    apt_update
+    $APT install -y pigpio python-pigpio
     $SYSTEMCTL enable pigpiod.service
     $SYSTEMCTL restart pigpiod.service
 }
 
 function install_apache
 {
-    $APT update && $APT install -y apache2
+    apt_update
+    $APT install -y apache2
 
     $SED -i -e '/.*#AddHandler cgi-script .cgi$/i \\tAddHandler cgi-script .py' /etc/apache2/mods-available/mime.conf
     $A2ENMOD cgi
@@ -108,11 +121,13 @@ EOF
 function install_crystalsignal
 {
     if [ ! -x $RSYNC ]; then
-       $APT update && $APT install -y rsync
+        apt_update
+        $APT install -y rsync
     fi
 
     if [ ! -x $JQ ]; then
-       $APT update && $APT install -y jq
+        apt_update
+        $APT install -y jq
     fi
 
     RESTORE=0
