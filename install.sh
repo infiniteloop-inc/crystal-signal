@@ -218,7 +218,7 @@ case "$1" in
         install_apache
         install_crystalsignal
         ;;
-    "*")
+    *)
         install_pigpiod
         install_apache
         install_crystalsignal
