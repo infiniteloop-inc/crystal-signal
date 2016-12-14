@@ -21,11 +21,21 @@ microSDカードに[Raspbian](https://www.raspberrypi.org/downloads/raspbian/)�
 
 ### Crystal Signal Piミドルウェアのインストール
 
-Raspberry Pi上で以下のコマンドを実行してください。インストールにはroot権限が必要になります。なお初回インストール時にはOSのアップデートも行われるため、完了までには少々時間がかかります。
+Raspberry Pi上で以下のコマンドを実行してください。インストールにはroot権限が必要になります。
+
+*(2016/12/14 追記) 従来はOSのアップデートを同時に行っていましたが、初回インストールに時間がかかりすぎるため、デフォルトの動作を変更しました。従来通りOSアップデートとインストールを同時に行いたい場合は、下記のfullinstallを利用してください。*
 
 ```
 $ curl -O https://raw.githubusercontent.com/infiniteloop-inc/crystal-signal/master/install.sh
 $ sudo bash install.sh
+```
+
+以下のように`fullinstall`を指定すると、OSのアップデートとタイムゾーンの変更(Asia/Tokyo)を行った上でミドルウェアをインストールします。Raspbianの設定を自分でいじりたくない、何も考えずにCrystal Signal Piをすぐに動かせる状態にしたい、という方向けのコマンドです。
+
+*OSのアップデートは完了までには少々時間がかかります。また完了後、Raspberry Piの再起動が必要な場合があります。*
+
+```
+$ sudo bash install.sh fullinstall
 ```
 
 ### Crystal Signal Piミドルウェアのアップデート
