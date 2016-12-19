@@ -35,11 +35,11 @@
             }
 
             #SliderPeriod .slider-selection {
-                background: gray;
+                background: #BABABA;
             }
 
             #SliderRepeat .slider-selection {
-                background: gray;
+                background: #BABABA;
             }
 
             .slider-handle {
@@ -86,7 +86,7 @@
                 <div class="block1">
                     <div class="panel panel-info">
                         <div class="panel-heading">
-                            <h4>Settings</h4>
+                            <h4>Alarm Settings</h4>
                         </div>
                         <div class="panel-body">
                             <div class="sliderBox">
@@ -96,7 +96,6 @@
                                 <input id="sldrGreen" data-slider-id='SliderGreen' type="text" data-slider-min="0" data-slider-max="255" data-slider-step="1" data-slider-value="80"/>
                                 <br><br><br>
                                 <input id="sldrBlue" data-slider-id='SliderBlue' type="text" data-slider-min="0" data-slider-max="255" data-slider-step="1" data-slider-value="0"/>
-
                             </div>
                             <div class="buttonBox">
                                 <br>
@@ -104,7 +103,6 @@
                                 <br><br><br>
                                 <input id="sldrRepeat" data-slider-id='SliderRepeat' type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="0"/>
                                 <br>
-
                                 <div class="innerButtonBox1">
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-default horizontalSpacer" name="btnOn">点灯</button>
@@ -225,7 +223,6 @@
                 });
 
                 var sldrGreen = $('#sldrGreen').slider({
-
                     formatter: function(value) {
                         return 'green: ' + value;
                     }

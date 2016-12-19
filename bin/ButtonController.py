@@ -52,6 +52,7 @@ class ButtonController:
         # returns the current TimeStamp in millisecs
         return int(time.time()*1000)
     def longPress(self):
+        path = "/var/lib/crystal-signal/scripts/"
         settings = self.getButtonSettings()
         if self.ackStatus:
             # Write here code that will be executed When the Button is pressed long & the current AckStatus is True
@@ -60,7 +61,7 @@ class ButtonController:
             #self.sendingDataToLEDController("color=171,148,100&mode=2&repeat=0&period=2000&json=0")
             if scriptName is not "Do Nothing":
                 try:
-                    txt = "/usr/local/bin/ButtonScripts/" + scriptName
+                    txt = path + scriptName
                     subprocess.call(txt)
                 except:
                     print 'cannot open', scriptName
@@ -71,12 +72,14 @@ class ButtonController:
             #self.sendingDataToLEDController("ack=1")
             if scriptName is not "Do Nothing":
                 try:
-                    txt = "/usr/local/bin/ButtonScripts/" + scriptName
+                    txt = path + scriptName
                     subprocess.call(txt)
                 except:
                     print 'cannot open', scriptName
 
     def shortPress(self):
+        path = "/var/lib/crystal-signal/scripts/"
+        print "short press!"
         settings = self.getButtonSettings()
         if self.ackStatus:
             # Write here code that will be executed When the Button is pressed short & the current AckStatus is True
@@ -84,7 +87,7 @@ class ButtonController:
             #self.sendRandomColorInstruction()
             if scriptName is not "Do Nothing":
                 try:
-                    txt = "/usr/local/bin/ButtonScripts/" + scriptName
+                    txt = path + scriptName
                     subprocess.call(txt)
                 except:
                     print 'cannot open', scriptName
@@ -95,7 +98,7 @@ class ButtonController:
             #self.sendingDataToLEDController("ack=1")
             if scriptName is not "Do Nothing":
                 try:
-                    txt = "/usr/local/bin/ButtonScripts/" + scriptName
+                    txt = path + scriptName
                     subprocess.call(txt)
                 except:
                     print 'cannot open', scriptName
@@ -108,14 +111,15 @@ class ButtonController:
     def sendingDataToLEDController(self, query_string):
         client('localhost', 7777, query_string + "&remote_addr=" + "ButtonController")
     def getButtonSettings(self):
-        if not isfile("/usr/local/bin/ButtonSettings.json"):
+        path = "/var/lib/crystal-signal/ButtonSettings.json"
+        if not isfile(path):
             buttonSettingsInit = {'dropdown1': "Do Nothing",
                                   'dropdown2': "Do Nothing",
                                   'dropdown3': "Do Nothing",
                                   'dropdown4': "Do Nothing"}
-            with open('/usr/local/bin/ButtonSettings.json', 'w+') as outfile:
+            with open(path, 'w+') as outfile:
                     json.dump(buttonSettingsInit, outfile)
-        with open('/usr/local/bin/ButtonSettings.json') as data:
+        with open(path) as data:
             return json.load(data)
 
 
@@ -140,36 +144,4 @@ def client(ip, port, message):
 # - - - - - - - - - - - - - - - - 
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
-
-# We got a lot of the small parts working:
-# - Working json read and write to settings.json!
-# - Working gathering of filenames from ButtonScripts directory!
-# - Working execution of shell Scripts from within Python!
-
-# How should the flow look like?
-
-# SETTINGS.JSON FILE:
-# - This get's rewritten every time settings are set on the settings.html page.
-# - It get's read every time a button is pressed. Because we need to know which ButtonScript has to be
-#   executed.
-
-# FILEGATHERING:
-# - Filegathering in the ButtonScript directory get's executed everytime the get settings button is clicked and sends
-#   a request for buttonForm via Ajax on settings.html to settings.py page.
-
-# BUTTONSCRIPTS:
-# - get executed whenever a button is beeing clicked.
-
-# SETTINGS.PY:
-# - is in the /var/www/html directory
-# - get's called via ajax and returns information for dropdown things in the settings.html file.
-
-# SETTINGS.HTML:
-# - The Control Panel Settings page!
-
-# Programming flow:
-# - make the new Control Panel Page
-#   - with drop down thingies!
-# - make the thing popupate the drop down thingies via Ajax + settings.py:
-
 

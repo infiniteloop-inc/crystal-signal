@@ -305,6 +305,10 @@ class LEDController:
             html += '''     </ul>
                         </div>'''
             htmlList.append(html)
+        # also add the slider HTML
+        html = '''<input id="sldrBrightness" data-slider-id='SliderBrightness' type="text" data-slider-min="40" data-slider-max="100" data-slider-step="1" data-slider-value="'''
+        html += str(round(self.getBrightnessSetting()*60/255.0 + 40)) + '"/>'
+        htmlList.append(html)
         return json.dumps(htmlList) 
     def setAcksInLogList(self):
         for ent in self.logList:
@@ -341,7 +345,7 @@ class LEDController:
         cutOffCor = 3-tmp if tmp>0 else tmp 
         return cutOffCor
     def getButtonScriptNames(self):
-        onlyfiles = [f for f in listdir("/usr/local/bin/ButtonScripts") if isfile(join("/usr/local/bin/ButtonScripts", f))]
+        onlyfiles = [f for f in listdir("/var/lib/crystal-signal/scripts") if isfile(join("/var/lib/crystal-signal/scripts", f))]
         return onlyfiles
     def setButtonSettings(self):
         keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4']
@@ -354,24 +358,26 @@ class LEDController:
                 for ent in keyList:
                     if key == ent: 
                         settings[ent] = value
-        with open('/usr/local/bin/ButtonSettings.json', 'w+') as outfile:
+        with open('/var/lib/crystal-signal/ButtonSettings.json', 'w+') as outfile:
                 json.dump(settings, outfile)
     def getButtonSettings(self):
-        if not isfile("/usr/local/bin/ButtonSettings.json"):
+        path = '/var/lib/crystal-signal/ButtonSettings.json'
+        if not isfile(path):
             buttonSettingsInit = {'dropdown1': "Do Nothing",
                                   'dropdown2': "Do Nothing",
                                   'dropdown3': "Do Nothing",
                                   'dropdown4': "Do Nothing"}
-            with open('/usr/local/bin/ButtonSettings.json', 'w+') as outfile:
-                    json.dump(buttonSettingsInit, outfile)
-        with open('/usr/local/bin/ButtonSettings.json') as data:
+            with open(path, 'w+') as outfile:
+                json.dump(buttonSettingsInit, outfile)
+        with open(path) as data:
             return json.load(data)
     def getSettings(self):
-        if not isfile("/usr/local/bin/Settings.json"):
+        path = "/var/lib/crystal-signal/Settings.json"
+        if not isfile(path):
             SettingsInit = {'brightness': 60}
-            with open('/usr/local/bin/Settings.json', 'w+') as outfile:
+            with open(path, 'w+') as outfile:
                     json.dump(SettingsInit, outfile)
-        with open('/usr/local/bin/Settings.json') as data:
+        with open(path) as data:
             return json.load(data)
     def getBrightnessSetting(self):
         settingsDict = self.getSettings()
@@ -384,6 +390,7 @@ class LEDController:
             return 0
         return settingsDict['brightness']
     def setSettings(self):
+        path = "/var/lib/crystal-signal/Settings.json"
         # sets one Settings entry (parameter-value pair in self.argList)
         keyList = ['brightness']
         # settings contains the current Settings.json data
@@ -400,7 +407,7 @@ class LEDController:
                             # we expect the all the entries in Settings.json to be convertable to int
                             # if it isn't, we do nothing
                             pass
-        with open('/usr/local/bin/Settings.json', 'w+') as outfile:
+        with open(path, 'w+') as outfile:
                 json.dump(settings, outfile)
 
 
@@ -438,7 +445,3 @@ while True:
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
 
-# As you probaply can see, we got a brightness parameter here.
-# now we need to check for incoming strings. If there is 
-# some brightness nerd we need to write the val into the file
-# But when should we s
