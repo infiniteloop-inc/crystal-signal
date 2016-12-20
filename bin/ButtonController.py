@@ -1,12 +1,9 @@
 import os
-import socket
 import threading
-import SocketServer
 import time
-from random import randint
 import subprocess
-from os import listdir
 from os.path import isfile, join
+from os import listdir
 import json
 
 # - - - - - - - - - - - - - - - - 
@@ -54,12 +51,12 @@ class ButtonController:
     def longPress(self):
         path = "/var/lib/crystal-signal/scripts/"
         settings = self.getButtonSettings()
+        availableScriptNames = self.getScriptNames()
         if self.ackStatus:
             # Write here code that will be executed When the Button is pressed long & the current AckStatus is True
             # and we need to test one more thing
             scriptName = settings['dropdown3']
-            #self.sendingDataToLEDController("color=171,148,100&mode=2&repeat=0&period=2000&json=0")
-            if scriptName is not "Do Nothing":
+            if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
                     subprocess.call(txt)
@@ -69,8 +66,7 @@ class ButtonController:
         else:
             # Write here code that will be executed When the Button is pressed long & the current AckStatus is False 
             scriptName = settings['dropdown4']
-            #self.sendingDataToLEDController("ack=1")
-            if scriptName is not "Do Nothing":
+            if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
                     subprocess.call(txt)
@@ -81,11 +77,11 @@ class ButtonController:
         path = "/var/lib/crystal-signal/scripts/"
         print "short press!"
         settings = self.getButtonSettings()
+        availableScriptNames = self.getScriptNames()
         if self.ackStatus:
             # Write here code that will be executed When the Button is pressed short & the current AckStatus is True
             scriptName = settings['dropdown1']
-            #self.sendRandomColorInstruction()
-            if scriptName is not "Do Nothing":
+            if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
                     subprocess.call(txt)
@@ -95,50 +91,28 @@ class ButtonController:
         else:
             # Write here code that will be executed When the Button is pressed short & the current AckStatus is False 
             scriptName = settings['dropdown2']
-            #self.sendingDataToLEDController("ack=1")
-            if scriptName is not "Do Nothing":
+            if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
                     subprocess.call(txt)
                 except:
                     print 'cannot open', scriptName
-
-    def sendRandomColorInstruction(self):
-        red = str(randint(0,255))
-        green = str(randint(0,255))
-        blue = str(randint(0,255))
-        self.sendingDataToLEDController("color=" + red + "," + green + "," + blue + "&mode=1&repeat=0&period=700&json=0")
-    def sendingDataToLEDController(self, query_string):
-        client('localhost', 7777, query_string + "&remote_addr=" + "ButtonController")
     def getButtonSettings(self):
-        path = "/var/lib/crystal-signal/ButtonSettings.json"
+        path = "/var/lib/crystal-signal/ScriptSettings.json"
         if not isfile(path):
             buttonSettingsInit = {'dropdown1': "Do Nothing",
                                   'dropdown2': "Do Nothing",
                                   'dropdown3': "Do Nothing",
-                                  'dropdown4': "Do Nothing"}
+                                  'dropdown4': "Do Nothing",
+                                  'dropdown5': "Do Nothing"}
             with open(path, 'w+') as outfile:
-                    json.dump(buttonSettingsInit, outfile)
+                json.dump(buttonSettingsInit, outfile)
         with open(path) as data:
             return json.load(data)
-
-
-# - - - - - - - - - - - - - - - - 
-# - - - SOCKET CLIENT CLASS - - -
-# - - - - - - - - - - - - - - - -
-def client(ip, port, message):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((ip, port))
-    try:
-        sock.sendall(message)
-        # wait for the python script to produce and send the data
-        time.sleep(0.3)
-        response = sock.recv(1048576)
-        # we do not neet to print the responce
-        # print "Content-type: text/html \n\n"
-        # print response
-    finally:
-        sock.close()
+    def getScriptNames(self):
+        path = "/var/lib/crystal-signal/scripts"
+        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        return onlyfiles
 
 
 # - - - - - - - - - - - - - - - - 

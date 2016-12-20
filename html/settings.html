@@ -40,6 +40,7 @@
             .horizontalSpacer { margin-top:15px;}
             .buttonBox {float: left; width: 290px; margin-left:10px; }
             .boxLeft {margin-left:10px; float: left; width: 350px; display: table; }
+            .sliderBox {margin-left:10px; float: left; width: 450px; display: table; }
             .boxRight {float: left; width: 290px; margin-left:10px; }
         </style>
     </head>
@@ -140,8 +141,26 @@
                         </div>
                         <br>
                         <div class="panel-body">
-                            <div id="BSlider">
-                                <input id="sldrBrightness" data-slider-id='SliderBrightness' type="text" data-slider-min="40" data-slider-max="100" data-slider-step="1" data-slider-value="40"/>
+                            <div class="sliderBox">
+                                <span class="DropDownSpan"> 明るさ設定：</span>
+                                <div id="BSlider" style="float: right">
+                                    <input id="sldrBrightness" data-slider-id='SliderBrightness' type="text" data-slider-min="40" data-slider-max="100" data-slider-step="1" data-slider-value="40"/>
+                                </div>
+                            </div>
+                            </br>
+                            </br>
+                            <div class="boxLeft"> 
+                                <span class="DropDownSpan"> アラートが発生した後に実行：</span>
+                                <div id="dropdown5" style="float: right">
+                                    <div class="dropdown">
+                                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">
+                                            loading...
+                                        <span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="#"></a></li>'
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -159,7 +178,8 @@
                     $("#dropdown2").html(parsedData[1]); 
                     $("#dropdown3").html(parsedData[2]); 
                     $("#dropdown4").html(parsedData[3]); 
-                    $("#BSlider").html(parsedData[4]);
+                    $("#dropdown5").html(parsedData[4]); 
+                    $("#BSlider").html(parsedData[5]);
                     // reinit 
                     var sldrBrightness = $('#sldrBrightness').slider({
                         formatter: function(value) {
@@ -199,6 +219,14 @@
                     $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown4=' + tmpText, function(data, status){
                     });
                 });
+                $(this).on("click","#dropdown5 a", function(e){ 
+                    tmpText = $(this).text();
+                    $("#dropdown5").find('button[name=dropDown1]').text(tmpText);
+                    $("#dropdown5").find('button[name=dropDown1]').append('<span class="caret"></span>')
+                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown5=' + tmpText, function(data, status){
+                    });
+                });
+
                 // SLIDERS
                 var sldrBrightness = $('#sldrBrightness').slider({
                     formatter: function(value) {

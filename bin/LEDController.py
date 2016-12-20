@@ -14,6 +14,7 @@ import SocketServer
 from os import listdir
 from os.path import isfile, join
 from ButtonController import ButtonController
+from AlarmScriptController import AlarmScriptController 
 
 # - - - - - - - - - - - - - - - - 
 # - - - - SOCKET CLASSES  - - - -
@@ -35,6 +36,7 @@ class LEDController:
     def __init__(self):
         self.pi1 = pigpio.pi('localhost', 8888)
         self.buttonController = ButtonController()
+        self.alarmScriptController = AlarmScriptController()
         self.pinList = [14, 15, 18]
         self.pi1.set_mode(4, pigpio.INPUT)
         self.pi1.set_pull_up_down(4, pigpio.PUD_OFF)
@@ -128,6 +130,7 @@ class LEDController:
                 self.logList.pop()  #delete last item from list
             self.resetUpdateParaMode1()
             self.resetUpdateParaMode2()
+            self.alarmScriptController.executeAlarmScript()
     def constantOn(self):
         if self.newStatusFlag:
             for index, pin in enumerate(self.pinList):
@@ -215,9 +218,9 @@ class LEDController:
             # Here we need to return some Bootstrap Dropdown menus!
             return self.getDropDownHTML()
         elif self.settingUpButtons:
-            # This is the area where we manage the buttonSettings.json file. 
+            # This is the area where we manage the ScriptSettings.json file. 
             # we do not even need to return anything.
-            self.setButtonSettings()
+            self.setScriptSettings()
             return ""
         elif self.settingUpSettings:
             # This is the erea where we manage the Settings.json file.
@@ -288,18 +291,18 @@ class LEDController:
                   </script>'''
         return html
     def getDropDownHTML(self):
-        keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4']
+        keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4', 'dropdown5']
         htmlList = []
-        buttonScriptFileNames = self.getButtonScriptNames()
-        buttonScriptFileNames.append("Do Nothing")
-        settings = self.getButtonSettings() 
+        ScriptFileNames = self.getScriptNames()
+        ScriptFileNames.append("Do Nothing")
+        settings = self.getScriptSettings() 
 
-        for ent in keyList:    # There are 4 DropDown Buttons.
+        for ent in keyList:    # There are 5 DropDown Buttons.
             html =  ''' <div class="dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">'''
             html +=         urllib.unquote(settings[ent]) + '''<span class="caret"></span></button>
                             <ul class="dropdown-menu">'''
-            for entry in buttonScriptFileNames:
+            for entry in ScriptFileNames:
                 html +=     '<li><a href="#">' + entry + '</a></li>'
 
             html += '''     </ul>
@@ -344,13 +347,14 @@ class LEDController:
         tmp = notASCIICounter%3
         cutOffCor = 3-tmp if tmp>0 else tmp 
         return cutOffCor
-    def getButtonScriptNames(self):
-        onlyfiles = [f for f in listdir("/var/lib/crystal-signal/scripts") if isfile(join("/var/lib/crystal-signal/scripts", f))]
+    def getScriptNames(self):
+        path = "/var/lib/crystal-signal/scripts"
+        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
         return onlyfiles
-    def setButtonSettings(self):
-        keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4']
-        # settings contains the current ButtonSettings.json data
-        settings = self.getButtonSettings()
+    def setScriptSettings(self):
+        keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4', 'dropdown5']
+        # settings contains the current ScriptSettings.json data
+        settings = self.getScriptSettings()
         for arg in self.argList:                 
             if arg is not "":
                 key, value = arg.split('=')      
@@ -358,17 +362,18 @@ class LEDController:
                 for ent in keyList:
                     if key == ent: 
                         settings[ent] = value
-        with open('/var/lib/crystal-signal/ButtonSettings.json', 'w+') as outfile:
+        with open('/var/lib/crystal-signal/ScriptSettings.json', 'w+') as outfile:
                 json.dump(settings, outfile)
-    def getButtonSettings(self):
-        path = '/var/lib/crystal-signal/ButtonSettings.json'
+    def getScriptSettings(self):
+        path = '/var/lib/crystal-signal/ScriptSettings.json'
         if not isfile(path):
-            buttonSettingsInit = {'dropdown1': "Do Nothing",
+            ScriptSettingsInit = {'dropdown1': "Do Nothing",
                                   'dropdown2': "Do Nothing",
                                   'dropdown3': "Do Nothing",
-                                  'dropdown4': "Do Nothing"}
+                                  'dropdown4': "Do Nothing",
+                                  'dropdown5': "Do Nothing"}
             with open(path, 'w+') as outfile:
-                json.dump(buttonSettingsInit, outfile)
+                json.dump(ScriptSettingsInit, outfile)
         with open(path) as data:
             return json.load(data)
     def getSettings(self):
@@ -444,4 +449,11 @@ while True:
 # - - - - - - - - - - - - - - - - 
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
+
+# The thing can be set.
+# now we need some code to execute the script which is set up in the Scriptsettings.json file.
+# we might want to make a new class.
+# But what should we call it?
+# AlarmScriptController?
+
 
