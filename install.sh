@@ -44,6 +44,7 @@ RSYNC=/usr/bin/rsync
 RM=/bin/rm
 CP=/bin/cp
 JQ=/usr/bin/jq
+MKDIR=/bin/mkdir
 MKTEMP=/bin/mktemp
 SLEEP=/bin/sleep
 RASPICONFIG=/usr/bin/raspi-config
@@ -52,6 +53,11 @@ TIMEDATECTL=/usr/bin/timedatectl
 WORKDIR=/tmp
 DOCUMENTROOT=/var/www/html
 CGIDIR=${DOCUMENTROOT}/ctrl
+
+CSPIDIR=/var/lib/crystal-signal
+SCRIPTDIR=${CSPIDIR}/scripts
+SCRIPTCONFFILE=${CSPIDIR}/ScriptSettings.json
+GENERALCONFFILE=${CSPIDIR}/Settings.json
 
 JQUERY=jquery-3.1.1.min.js
 
@@ -153,9 +159,40 @@ function install_crystalsignal
 
     $TAR xf ${WORKDIR}/crystal-signal.tar.gz -C $WORKDIR
 
-    $CP ${WORKDIR}/crystal-signal-${SERVERVER}/bin/LEDController.py /usr/local/bin
-    $CHMOD +x /usr/local/bin/LEDController.py
+    $CHMOD +x ${WORKDIR}/crystal-signal-${SERVERVER}/bin/*
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/bin/ /usr/local/bin/
 
+    # install button & alert scripts
+    if [ ! -d "${CSPIDIR}" ]; then
+        $MKDIR ${CSPIDIR}
+    fi
+
+    if [ ! -d "${SCRIPTDIR}" ]; then
+        $MKDIR ${SCRIPTDIR}
+    fi
+
+    for script in ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/*
+    do
+        if [ ! -x ${SCRIPTDIR}/$(basename ${script}) ]; then
+            $CP $script $SCRIPTDIR
+            $CHMOD +x $SCRIPTDIR/$(basename ${script})
+        fi
+    done
+
+    # install default config file
+    if [ ! -f $GENERALCONFFILE ]; then
+        $CAT > $GENERALCONFFILE <<EOF
+{"brightness": 43}
+EOF
+    fi
+
+    if [ ! -f $SCRIPTCONFFILE ]; then
+        $CAT > $SCRIPTCONFFILE <<EOF
+{"dropdown4": "Do Nothing", "dropdown5": "Do Nothing", "dropdown1": "Do Nothing", "dropdown2": "Ack.sh", "dropdown3": "Do Nothing"}
+EOF
+    fi
+
+    # install systemd service
     $CAT > /etc/systemd/system/LEDController.service <<EOF
 [Unit]
 Description=LED Controller
@@ -168,25 +205,26 @@ ExecStart=/usr/local/bin/LEDController.py
 WantedBy=multi-user.target
 EOF
 
-    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ $DOCUMENTROOT/
-    $CHMOD +x $CGIDIR/*.py
+    # install HTML
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ ${DOCUMENTROOT}/
+    $CHMOD +x ${CGIDIR}/*.py
 
     $RM -rf ${WORKDIR}/crystal-signal-${SERVERVER}
 
-    if [ ! -d "${DOCUMENTROOT}/css" ]; then
-        mkdir ${DOCUMENTROOT}/css
-    fi
-
-    if [ ! -d "${DOCUMENTROOT}/js" ]; then
-        mkdir ${DOCUMENTROOT}/js
-    fi
-
     # install jQuery
+    if [ ! -d "${DOCUMENTROOT}/js" ]; then
+        $MKDIR ${DOCUMENTROOT}/js
+    fi
+
     if [ ! -f "${DOCUMENTROOT}/js/${JQUERY}" ]; then
         $WGET -O ${DOCUMENTROOT}/js/${JQUERY} "https://code.jquery.com/${JQUERY}"
     fi
 
     # install bootstrap
+    if [ ! -d "${DOCUMENTROOT}/css" ]; then
+        $MKDIR ${DOCUMENTROOT}/css
+    fi
+
     if [ ! -f "${DOCUMENTROOT}/css/bootstrap-3.3.7.min.css" ]; then
         $WGET -O ${DOCUMENTROOT}/css/bootstrap-3.3.7.min.css "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap/v3-dev/dist/css/bootstrap.min.css"
     fi
