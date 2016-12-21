@@ -171,13 +171,12 @@ function install_crystalsignal
         $MKDIR ${SCRIPTDIR}
     fi
 
-    for script in ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/*
-    do
-        if [ ! -x ${SCRIPTDIR}/$(basename ${script}) ]; then
-            $CP $script $SCRIPTDIR
-            $CHMOD +x $SCRIPTDIR/$(basename ${script})
-        fi
-    done
+    # install version file
+    $CP ${WORKDIR}/crystal-signal-${SERVERVER}/VERSION ${CSPIDIR}
+
+    # install sample scripts
+    $CHMOD +x ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/*
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/ $SCRIPTDIR
 
     # install default config file
     if [ ! -f $GENERALCONFFILE ]; then
@@ -209,6 +208,7 @@ EOF
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ ${DOCUMENTROOT}/
     $CHMOD +x ${CGIDIR}/*.py
 
+    # delete working directory
     $RM -rf ${WORKDIR}/crystal-signal-${SERVERVER}
 
     # install jQuery
@@ -231,6 +231,7 @@ EOF
     if [ ! -f "${DOCUMENTROOT}/js/bootstrap-3.3.7.min.js" ]; then
         $WGET -O ${DOCUMENTROOT}/js/bootstrap-3.3.7.min.js "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap/v3-dev/dist/js/bootstrap.min.js"
     fi
+
     # install bootstrap-slider
     if [ ! -f "${DOCUMENTROOT}/css/bootstrap-slider-9.5.1.min.css" ]; then
         $WGET -O ${DOCUMENTROOT}/css/bootstrap-slider-9.5.1.min.css "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap-slider/master/dist/css/bootstrap-slider.min.css"
@@ -241,9 +242,6 @@ EOF
 
     $SYSTEMCTL enable LEDController.service
     $SYSTEMCTL restart LEDController.service
-
-    $SLEEP 5
-    $CURL --globoff -s "http://localhost/ctrl/?color=0,0,128&mode=1&repeat=3&period=500&info=UPDATE%20SUCCESS" > /dev/null
 
     if [ $RESTORE -eq 1 ]; then
         $SLEEP 3
