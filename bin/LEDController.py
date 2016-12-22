@@ -67,6 +67,7 @@ class LEDController:
         self.argList = []
     def updateStatus(self, query_string):
         self.newStatusFlag = True;
+        self.noScript = False;
         self.getLogData = False;
         self.getDropDownData = False;
         self.settingUpButtons = False;
@@ -100,6 +101,9 @@ class LEDController:
                 elif key == 'settingupsettings':
                     if int(value) != 0:
                         self.settingUpSettings = True
+                elif key == 'noscript':
+                    if int(value) != 0:
+                        self.noScript = True
                 elif key == 'json':
                     if int(value) != 0:
                         self.statusDict['json'] = 1
@@ -130,7 +134,8 @@ class LEDController:
                 self.logList.pop()  #delete last item from list
             self.resetUpdateParaMode1()
             self.resetUpdateParaMode2()
-            self.alarmScriptController.executeAlarmScript()
+            if not self.noScript:
+                self.alarmScriptController.executeAlarmScript()
     def constantOn(self):
         if self.newStatusFlag:
             for index, pin in enumerate(self.pinList):
@@ -353,6 +358,8 @@ class LEDController:
         return onlyfiles
     def setScriptSettings(self):
         keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4', 'dropdown5']
+        scriptNames = self.getScriptNames()
+        scriptNames.append("Do Nothing")
         # settings contains the current ScriptSettings.json data
         settings = self.getScriptSettings()
         for arg in self.argList:                 
@@ -361,7 +368,10 @@ class LEDController:
                 key = key.lower()
                 for ent in keyList:
                     if key == ent: 
-                        settings[ent] = value
+                        # only accept the new settings string
+                        # if it really is one of the scriptNames
+                        if urllib.unquote(value) in scriptNames:
+                            settings[ent] = value
         with open('/var/lib/crystal-signal/ScriptSettings.json', 'w+') as outfile:
                 json.dump(settings, outfile)
     def getScriptSettings(self):
@@ -449,11 +459,4 @@ while True:
 # - - - - - - - - - - - - - - - - 
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
-
-# The thing can be set.
-# now we need some code to execute the script which is set up in the Scriptsettings.json file.
-# we might want to make a new class.
-# But what should we call it?
-# AlarmScriptController?
-
 
