@@ -142,14 +142,14 @@ function install_crystalsignal
     $JQ . $TEMP > /dev/null 2>&1
 
     if [ $? -eq 0 ]; then
-       INFO=$($JQ .info $TEMP)
-       REPEAT=$($JQ .repeat $TEMP)
-       MODE=$($JQ .mode $TEMP)
-       PERIOD=$($JQ .period $TEMP)
-       RED=$($JQ .color[0] $TEMP)
-       GREEN=$($JQ .color[1] $TEMP)
-       BLUE=$($JQ .color[2] $TEMP)
-       ACK=$($JQ .ack $TEMP)
+       INFO=$($JQ -r .info $TEMP)
+       REPEAT=$($JQ -r .repeat $TEMP)
+       MODE=$($JQ -r .mode $TEMP)
+       PERIOD=$($JQ -r .period $TEMP)
+       RED=$($JQ -r .color[0] $TEMP)
+       GREEN=$($JQ -r .color[1] $TEMP)
+       BLUE=$($JQ -r .color[2] $TEMP)
+       ACK=$($JQ -r .ack $TEMP)
        RESTORE=1
     fi
 
@@ -245,7 +245,7 @@ EOF
 
     if [ $RESTORE -eq 1 ]; then
         $SLEEP 3
-        $CURL -s "http://localhost/ctrl/?color=${RED},${GREEN},${BLUE}&mode=${MODE}&repeat=${REPEAT}&period=${PERIOD}&info=${INFO}&ack=${ACK}" > /dev/null
+        $CURL -s "http://localhost/ctrl/?color=${RED},${GREEN},${BLUE}&mode=${MODE}&repeat=${REPEAT}&period=${PERIOD}&info=${INFO}&ack=${ACK}&noscript=1" > /dev/null
     fi
 }
 
