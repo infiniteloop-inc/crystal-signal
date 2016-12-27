@@ -302,16 +302,26 @@ class LEDController:
     def getDropDownHTML(self):
         keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4', 'dropdown5']
         htmlList = []
-        ScriptFileNames = self.getScriptNames()
-        ScriptFileNames.append("---")
+        scriptFileNames = self.getScriptNames()
+        scriptFileNames.append("---")
         settings = self.getScriptSettings() 
-
+        # Here we check weather or not all the loaded settings entries
+        # are either the name of an existing script or "---"
+        # make the entry "---" if this is not the case
+        rewriteSettingsFlag = False
+        for ent in keyList:
+            if not settings[ent] in scriptFileNames:
+                settings[ent] = "---"
+                rewriteSettingsFlag = True
+        if rewriteSettingsFlag:
+            with open('/var/lib/crystal-signal/ScriptSettings.json', 'w+') as outfile:
+                json.dump(settings, outfile)
         for ent in keyList:    # There are 5 DropDown Buttons.
             html =  ''' <div class="dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">'''
             html +=         urllib.unquote(settings[ent]) + '''<span class="caret"></span></button>
                             <ul class="dropdown-menu">'''
-            for entry in ScriptFileNames:
+            for entry in scriptFileNames:
                 html +=     '<li><a href="#">' + entry + '</a></li>'
 
             html += '''     </ul>
