@@ -187,7 +187,7 @@ EOF
 
     if [ ! -f $SCRIPTCONFFILE ]; then
         $CAT > $SCRIPTCONFFILE <<EOF
-{"dropdown4": "Do Nothing", "dropdown5": "Do Nothing", "dropdown1": "Do Nothing", "dropdown2": "Ack.sh", "dropdown3": "Do Nothing"}
+{"dropdown4": "---", "dropdown5": "---", "dropdown1": "---", "dropdown2": "Ack.sh", "dropdown3": "---"}
 EOF
     fi
 
