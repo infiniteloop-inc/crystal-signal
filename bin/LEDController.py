@@ -86,6 +86,10 @@ class LEDController:
                         self.setAcksInLogList()
                     else:
                         self.statusDict['ack'] = 0
+                elif key == 'ackone':
+                    if int(value) != 0:
+                        self.statusDict['ack'] = 1
+                        self.acknowledgeNewestAlarm()
                 elif key == 'deletelog':
                     if int(value) != 0:
                         self.deleteLog()
@@ -299,7 +303,7 @@ class LEDController:
         keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4', 'dropdown5']
         htmlList = []
         ScriptFileNames = self.getScriptNames()
-        ScriptFileNames.append("Do Nothing")
+        ScriptFileNames.append("---")
         settings = self.getScriptSettings() 
 
         for ent in keyList:    # There are 5 DropDown Buttons.
@@ -322,6 +326,19 @@ class LEDController:
         for ent in self.logList:
             if 'ack' in ent:
                 ent['ack'] = 1
+    def acknowledgeNewestAlarm(self):
+        flag = False
+        for ent in self.logList:
+            if not flag and ent['ack'] == 0:
+                ent['ack'] = 1
+                flag = True
+            if flag and ent['ack'] == 0:
+                self.newStatusFlag = True;
+                # here we loop through all the subentries of the alarm we need to load back into the
+                # self.statusDict
+                for key in self.listOfKeys:
+                    self.statusDict[key] = ent[key]
+                break
     def resetUpdateParaMode2(self):
         durTmp = self.statusDict['period'] / 510.0
         self.stepDurationM2 = [int((random.random()-0.5)*durTmp + durTmp), 
@@ -359,7 +376,7 @@ class LEDController:
     def setScriptSettings(self):
         keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4', 'dropdown5']
         scriptNames = self.getScriptNames()
-        scriptNames.append("Do Nothing")
+        scriptNames.append("---")
         # settings contains the current ScriptSettings.json data
         settings = self.getScriptSettings()
         for arg in self.argList:                 
@@ -377,11 +394,11 @@ class LEDController:
     def getScriptSettings(self):
         path = '/var/lib/crystal-signal/ScriptSettings.json'
         if not isfile(path):
-            ScriptSettingsInit = {'dropdown1': "Do Nothing",
-                                  'dropdown2': "Do Nothing",
-                                  'dropdown3': "Do Nothing",
-                                  'dropdown4': "Do Nothing",
-                                  'dropdown5': "Do Nothing"}
+            ScriptSettingsInit = {'dropdown1': "---",
+                                  'dropdown2': "---",
+                                  'dropdown3': "---",
+                                  'dropdown4': "---",
+                                  'dropdown5': "---"}
             with open(path, 'w+') as outfile:
                 json.dump(ScriptSettingsInit, outfile)
         with open(path) as data:
@@ -459,4 +476,19 @@ while True:
 # - - - - - - - - - - - - - - - - 
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
+# a "reset only the newest alarm" parameter would be nice.
+# as it is now, there is the ack=1 parameter.
+# if it is set. all the Alarm msgs will be reset. What we need is some kind of a
+# "ackNewestOnly" thing. I think I like the idea of a ackNewestOnly parameter
+# I don't like the 2 parameter thing. So let's use just one.
+# 
+
+
+
+
+
+
+
+
+
 

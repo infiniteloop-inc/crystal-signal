@@ -56,7 +56,7 @@ class ButtonController:
             # Write here code that will be executed When the Button is pressed long & the current AckStatus is True
             # and we need to test one more thing
             scriptName = settings['dropdown3']
-            if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
+            if scriptName is not "---" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
                     subprocess.call(txt)
@@ -66,7 +66,7 @@ class ButtonController:
         else:
             # Write here code that will be executed When the Button is pressed long & the current AckStatus is False 
             scriptName = settings['dropdown4']
-            if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
+            if scriptName is not "---" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
                     subprocess.call(txt)
@@ -81,7 +81,7 @@ class ButtonController:
         if self.ackStatus:
             # Write here code that will be executed When the Button is pressed short & the current AckStatus is True
             scriptName = settings['dropdown1']
-            if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
+            if scriptName is not "---" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
                     subprocess.call(txt)
@@ -91,7 +91,7 @@ class ButtonController:
         else:
             # Write here code that will be executed When the Button is pressed short & the current AckStatus is False 
             scriptName = settings['dropdown2']
-            if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
+            if scriptName is not "---" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
                     subprocess.call(txt)
@@ -100,11 +100,11 @@ class ButtonController:
     def getButtonSettings(self):
         path = "/var/lib/crystal-signal/ScriptSettings.json"
         if not isfile(path):
-            buttonSettingsInit = {'dropdown1': "Do Nothing",
-                                  'dropdown2': "Do Nothing",
-                                  'dropdown3': "Do Nothing",
-                                  'dropdown4': "Do Nothing",
-                                  'dropdown5': "Do Nothing"}
+            buttonSettingsInit = {'dropdown1': "---",
+                                  'dropdown2': "---",
+                                  'dropdown3': "---",
+                                  'dropdown4': "---",
+                                  'dropdown5': "---"}
             with open(path, 'w+') as outfile:
                 json.dump(buttonSettingsInit, outfile)
         with open(path) as data:

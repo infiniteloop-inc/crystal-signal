@@ -17,7 +17,7 @@ class AlarmScriptController:
         settings = self.getScriptSettings()
         availableScriptNames = self.getScriptNames()
         scriptName = settings['dropdown5']
-        if scriptName is not "Do Nothing" and scriptName in availableScriptNames:
+        if scriptName is not "---" and scriptName in availableScriptNames:
             try:
                 txt = path + scriptName
                 subprocess.call(txt)
@@ -26,11 +26,11 @@ class AlarmScriptController:
     def getScriptSettings(self):
         path = "/var/lib/crystal-signal/ScriptSettings.json"
         if not isfile(path):
-            buttonSettingsInit = {'dropdown1': "Do Nothing",
-                                  'dropdown2': "Do Nothing",
-                                  'dropdown3': "Do Nothing",
-                                  'dropdown4': "Do Nothing",
-                                  'dropdown5': "Do Nothing"}
+            buttonSettingsInit = {'dropdown1': "---",
+                                  'dropdown2': "---",
+                                  'dropdown3': "---",
+                                  'dropdown4': "---",
+                                  'dropdown5': "---"}
             with open(path, 'w+') as outfile:
                 json.dump(buttonSettingsInit, outfile)
         with open(path) as data:
