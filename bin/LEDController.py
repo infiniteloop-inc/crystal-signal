@@ -236,7 +236,8 @@ class LEDController:
             # we do not even need to return anything.
             self.setSettings()
             self.brightness = self.getBrightnessSetting()
-            self.setupPWM()
+            print self.brightness
+            self.setupPWMRange()
             return ""
         else:
             if self.statusDict['json'] == 0:
@@ -362,6 +363,9 @@ class LEDController:
             self.pi1.set_PWM_frequency(pin,600)
             self.pi1.set_PWM_range(pin, 255 + int(745*(255-self.brightness)/255.0))  #1000
             self.pi1.set_PWM_dutycycle(pin, 0)
+    def setupPWMRange(self):
+        for pin in self.pinList:
+            self.pi1.set_PWM_range(pin, 255 + int(745*(255-self.brightness)/255.0))  #1000
     def checkBoundries(self):
         for index, _ in enumerate(self.pinList):
             if self.statusDict['color'][index] > 255:
@@ -486,15 +490,11 @@ while True:
 # - - - - - - - - - - - - - - - - 
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
-# a "reset only the newest alarm" parameter would be nice.
-# as it is now, there is the ack=1 parameter.
-# if it is set. all the Alarm msgs will be reset. What we need is some kind of a
-# "ackNewestOnly" thing. I think I like the idea of a ackNewestOnly parameter
-# I don't like the 2 parameter thing. So let's use just one.
+
+# So what did we just see here.
+# With this new brightness funtionality
+# whenever we load a new brightness setting there is a small change that some of the RGB channels turn black
 # 
-
-
-
 
 
 
