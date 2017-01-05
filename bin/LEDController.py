@@ -236,7 +236,6 @@ class LEDController:
             # we do not even need to return anything.
             self.setSettings()
             self.brightness = self.getBrightnessSetting()
-            print self.brightness
             self.setupPWMRange()
             return ""
         else:
@@ -490,15 +489,4 @@ while True:
 # - - - - - - - - - - - - - - - - 
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
-
-# So what did we just see here.
-# With this new brightness funtionality
-# whenever we load a new brightness setting there is a small change that some of the RGB channels turn black
-# 
-
-
-
-
-
-
 
