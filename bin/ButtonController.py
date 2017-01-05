@@ -59,7 +59,7 @@ class ButtonController:
             if scriptName is not "---" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
-                    subprocess.call(txt)
+                    subprocess.Popen(txt)
                 except:
                     print 'cannot open', scriptName
 
@@ -69,7 +69,7 @@ class ButtonController:
             if scriptName is not "---" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
-                    subprocess.call(txt)
+                    subprocess.Popen(txt)
                 except:
                     print 'cannot open', scriptName
 
@@ -84,7 +84,7 @@ class ButtonController:
             if scriptName is not "---" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
-                    subprocess.call(txt)
+                    subprocess.Popen(txt)
                 except:
                     print 'cannot open', scriptName
 
@@ -94,7 +94,7 @@ class ButtonController:
             if scriptName is not "---" and scriptName in availableScriptNames:
                 try:
                     txt = path + scriptName
-                    subprocess.call(txt)
+                    subprocess.Popen(txt)
                 except:
                     print 'cannot open', scriptName
     def getButtonSettings(self):
