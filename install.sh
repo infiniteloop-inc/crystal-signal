@@ -184,7 +184,6 @@ function install_crystalsignal
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/ $SCRIPTDIR
 
     # install sample sound files
-    $CHMOD +x ${WORKDIR}/crystal-signal-${SERVERVER}/sounds/*
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/sounds/ $SOUNDSDIR
 
     # install default config file
