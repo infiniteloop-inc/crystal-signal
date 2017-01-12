@@ -56,6 +56,7 @@ CGIDIR=${DOCUMENTROOT}/ctrl
 
 CSPIDIR=/var/lib/crystal-signal
 SCRIPTDIR=${CSPIDIR}/scripts
+SOUNDSDIR=${CSPIDIR}/sounds
 SCRIPTCONFFILE=${CSPIDIR}/ScriptSettings.json
 GENERALCONFFILE=${CSPIDIR}/Settings.json
 
@@ -170,6 +171,10 @@ function install_crystalsignal
     if [ ! -d "${SCRIPTDIR}" ]; then
         $MKDIR ${SCRIPTDIR}
     fi
+    
+    if [ ! -d "${SOUNDSDIR}" ]; then
+        $MKDIR ${SOUNDSDIR}
+    fi
 
     # install version file
     $CP ${WORKDIR}/crystal-signal-${SERVERVER}/VERSION ${CSPIDIR}
@@ -177,6 +182,10 @@ function install_crystalsignal
     # install sample scripts
     $CHMOD +x ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/*
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/ $SCRIPTDIR
+
+    # install sample sound files
+    $CHMOD +x ${WORKDIR}/crystal-signal-${SERVERVER}/sounds/*
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/sounds/ $SOUNDSDIR
 
     # install default config file
     if [ ! -f $GENERALCONFFILE ]; then

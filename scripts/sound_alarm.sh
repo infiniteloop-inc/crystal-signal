@@ -1,3 +1,3 @@
 #!/bin/bash
-aplay /var/lib/crystal-signal/scripts/soundFiles/alarm.wav
+aplay /var/lib/crystal-signal/sounds/alarm.wav
 
