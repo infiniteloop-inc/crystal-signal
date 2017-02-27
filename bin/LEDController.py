@@ -348,6 +348,10 @@ class LEDController:
                 # self.statusDict
                 for key in self.listOfKeys:
                     self.statusDict[key] = ent[key]
+                # after we loaded the values back into the status dict
+                # we reset the update parameters
+                self.resetUpdateParaMode1()
+                self.resetUpdateParaMode2()
                 break
     def resetUpdateParaMode2(self):
         durTmp = self.statusDict['period'] / 510.0
