@@ -114,6 +114,8 @@ function install_apache
     $SED -i -e '/.*#AddHandler cgi-script .cgi$/i \\tAddHandler cgi-script .py' /etc/apache2/mods-available/mime.conf
     $A2ENMOD cgi
 
+    $APT install php5 libapache2-mod-php5 -y
+
     $CAT > /etc/apache2/conf-available/crystal-signal.conf <<EOF
 <Directory /var/www/html/ctrl>
      Options +Indexes +ExecCGI
