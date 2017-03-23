@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import sys
 import math
 import time
 import json
@@ -10,6 +11,10 @@ import random
 import datetime
 import threading
 import SocketServer
+from os import listdir
+from os.path import isfile, join
+from ButtonController import ButtonController
+from AlarmScriptController import AlarmScriptController 
 
 # - - - - - - - - - - - - - - - - 
 # - - - - SOCKET CLASSES  - - - -
@@ -30,6 +35,8 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 class LEDController:
     def __init__(self):
         self.pi1 = pigpio.pi('localhost', 8888)
+        self.buttonController = ButtonController()
+        self.alarmScriptController = AlarmScriptController()
         self.pinList = [14, 15, 18]
         self.pi1.set_mode(4, pigpio.INPUT)
         self.pi1.set_pull_up_down(4, pigpio.PUD_OFF)
@@ -38,7 +45,7 @@ class LEDController:
                         'mode': 0,          # 0 -> constant on, 1 -> blinking, 2: asynchron blinking 
                       'period': 1000,       # in milliseconds
                       'repeat': 0,          # if x > 0 -> stop after blinking x times 
-                         'ack': 0,          # was the current alarm acknowledged? 0 -> NO, 1 -> YES
+                         'ack': 1,          # was the current alarm acknowledged? 0 -> NO, 1 -> YES
                         'json': 0,          # 0 -> status response in HTML, 1 -> status response in Json
                         'info': "",         # info
                         'remote_addr': 0,   # Where was the request sent from?
@@ -52,19 +59,25 @@ class LEDController:
                           'json': "0 -> status response in HTML, 1 -> status response in Json",
                           'info': "information about the alarm"}
         self.logList = []
+        self.brightness = self.getBrightnessSetting()
         self.setupPWM()
         self.resetUpdateParaMode1()
         self.resetUpdateParaMode2()
         self.newStatusFlag = True;
+        self.argList = []
     def updateStatus(self, query_string):
         self.newStatusFlag = True;
-        self.getLogData = 0;
+        self.noScript = False;
+        self.getLogData = False;
+        self.getDropDownData = False;
+        self.settingUpButtons = False;
+        self.settingUpSettings = False;
         colorWasSet = False
         self.queryString = query_string
-        arg_list=query_string.split('&')
-        for arg in arg_list:                # First, we need to check for a 'ack' and 'json' 
+        self.argList=query_string.split('&')
+        for arg in self.argList:                 
             if arg is not "":
-                key, value=arg.split('=')       # and wether or not a color was set
+                key, value=arg.split('=')       
                 key = key.lower()
                 if key == 'ack':
                     if int(value) != 0:
@@ -73,12 +86,28 @@ class LEDController:
                         self.setAcksInLogList()
                     else:
                         self.statusDict['ack'] = 0
+                elif key == 'ackone':
+                    if int(value) != 0:
+                        self.statusDict['ack'] = 1
+                        self.acknowledgeNewestAlarm()
                 elif key == 'deletelog':
                     if int(value) != 0:
                         self.deleteLog()
                 elif key == 'getlogdata':
                     if int(value) != 0:
-                        self.getLogData = 1
+                        self.getLogData = True
+                elif key == 'getdropdowndata':
+                    if int(value) != 0:
+                        self.getDropDownData = True
+                elif key == 'settingupbuttons':
+                    if int(value) != 0:
+                        self.settingUpButtons = True
+                elif key == 'settingupsettings':
+                    if int(value) != 0:
+                        self.settingUpSettings = True
+                elif key == 'noscript':
+                    if int(value) != 0:
+                        self.noScript = True
                 elif key == 'json':
                     if int(value) != 0:
                         self.statusDict['json'] = 1
@@ -88,7 +117,7 @@ class LEDController:
                     colorWasSet = True
         if  colorWasSet:   # Only load the other parameters if at least 1 color parameter was sent  
             self.resetStatusDict()                        
-            for arg in arg_list:
+            for arg in self.argList:
                 key, value=arg.split('=')
                 key = key.lower()
                 if key in self.statusDict:
@@ -101,18 +130,16 @@ class LEDController:
                             self.statusDict[key] = int(value)
                         except ValueError:
                             self.statusDict[key] = value
-                        
             self.checkBoundries()
-
             clonedDict = dict(self.statusDict)
             clonedDict['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            #clonedDict['querystring'] = self.queryString
             self.logList.insert(0, clonedDict)
             if len(self.logList) > 500:
-                self.logList.pop()  # delete last item from list
-
+                self.logList.pop()  #delete last item from list
             self.resetUpdateParaMode1()
             self.resetUpdateParaMode2()
+            if not self.noScript:
+                self.alarmScriptController.executeAlarmScript()
     def constantOn(self):
         if self.newStatusFlag:
             for index, pin in enumerate(self.pinList):
@@ -156,11 +183,7 @@ class LEDController:
         # sleep for 2ms
         time.sleep(0.002)
     def update(self):
-        if self.pi1.read(4):
-            self.newStatusFlag = True
-            self.statusDict['ack'] = 1;
-            self.setAcksInLogList()
-            time.sleep(0.1)
+        self.buttonController.update(self.pi1.read(4), self.statusDict['ack'])
         if self.statusDict['ack'] != 0 or self.repeatEnded:
             if self.newStatusFlag:
                 self.resetLEDs()
@@ -178,8 +201,6 @@ class LEDController:
                 time.sleep(0.1)
     def getTimeInMilliSec(self):
         return int(time.time()*1000)
-    def setUpMode2Parameters(self):
-        pass
     def resetStatusDict(self):
         self.statusDict['color'] = [0,0,0]
         self.statusDict['period'] = 1000
@@ -198,7 +219,26 @@ class LEDController:
         self.stepCounter = 0
         self.risingEdge = True
     def getStatus(self):
-        if self.getLogData == 0:
+        if self.getLogData:
+            # Here we need to return a nicely formatted table!
+            # something like this:
+            return self.getTableHTML()
+        elif self.getDropDownData:
+            # Here we need to return some Bootstrap Dropdown menus!
+            return self.getDropDownHTML()
+        elif self.settingUpButtons:
+            # This is the area where we manage the ScriptSettings.json file. 
+            # we do not even need to return anything.
+            self.setScriptSettings()
+            return ""
+        elif self.settingUpSettings:
+            # This is the erea where we manage the Settings.json file.
+            # we do not even need to return anything.
+            self.setSettings()
+            self.brightness = self.getBrightnessSetting()
+            self.setupPWMRange()
+            return ""
+        else:
             if self.statusDict['json'] == 0:
                 argList = ""
                 argExplanation = ""
@@ -212,10 +252,6 @@ class LEDController:
                 return response 
             else:
                 return json.dumps(self.statusDict)
-        else:
-            # Here we need to return a nicely formatted table!
-            # something like this:
-             return self.getTableHTML()
     def deleteLog(self):
         self.logList = []
     def getTableHTML(self):
@@ -236,10 +272,7 @@ class LEDController:
             argList = ""
             for key in self.listOfKeys:
                 argList += key + ": " + urllib.unquote(str(ent[key])) + "<br>\r\n"
-            if ent['ack'] == 0:
-                html += '<tr class="danger">' 
-            else:
-                html += '<tr class="success">' 
+            html += '<tr class="{0}">'.format("danger" if (ent['ack'] == 0) else "success")
             html += "<td>" + ent['date'] + "</td>"
             html += "<td>" + ent['remote_addr'] + "</td>"
             html += '''<td><a href="javascript://" title="Parameter" data-toggle="popover" data-placement="right"
@@ -266,10 +299,60 @@ class LEDController:
                     $('[data-toggle="popover"]').popover();
                   </script>'''
         return html
+    def getDropDownHTML(self):
+        keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4', 'dropdown5']
+        htmlList = []
+        scriptFileNames = self.getScriptNames()
+        scriptFileNames.append("---")
+        settings = self.getScriptSettings() 
+        # Here we check weather or not all the loaded settings entries
+        # are either the name of an existing script or "---"
+        # make the entry "---" if this is not the case
+        rewriteSettingsFlag = False
+        for ent in keyList:
+            if not settings[ent] in scriptFileNames:
+                settings[ent] = "---"
+                rewriteSettingsFlag = True
+        if rewriteSettingsFlag:
+            with open('/var/lib/crystal-signal/ScriptSettings.json', 'w+') as outfile:
+                json.dump(settings, outfile)
+        for ent in keyList:    # There are 5 DropDown Buttons.
+            html =  ''' <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">'''
+            html +=         urllib.unquote(settings[ent]) + '''<span class="caret"></span></button>
+                            <ul class="dropdown-menu">'''
+            for entry in scriptFileNames:
+                html +=     '<li><a href="#">' + entry + '</a></li>'
+
+            html += '''     </ul>
+                        </div>'''
+            htmlList.append(html)
+        # also add the slider HTML
+        html = '''<input id="sldrBrightness" data-slider-id='SliderBrightness' type="text" data-slider-min="40" data-slider-max="100" data-slider-step="1" data-slider-value="'''
+        html += str(round(self.getBrightnessSetting()*60/255.0 + 40)) + '"/>'
+        htmlList.append(html)
+        return json.dumps(htmlList) 
     def setAcksInLogList(self):
         for ent in self.logList:
             if 'ack' in ent:
                 ent['ack'] = 1
+    def acknowledgeNewestAlarm(self):
+        flag = False
+        for ent in self.logList:
+            if not flag and ent['ack'] == 0:
+                ent['ack'] = 1
+                flag = True
+            if flag and ent['ack'] == 0:
+                self.newStatusFlag = True;
+                # here we loop through all the subentries of the alarm we need to load back into the
+                # self.statusDict
+                for key in self.listOfKeys:
+                    self.statusDict[key] = ent[key]
+                # after we loaded the values back into the status dict
+                # we reset the update parameters
+                self.resetUpdateParaMode1()
+                self.resetUpdateParaMode2()
+                break
     def resetUpdateParaMode2(self):
         durTmp = self.statusDict['period'] / 510.0
         self.stepDurationM2 = [int((random.random()-0.5)*durTmp + durTmp), 
@@ -281,8 +364,11 @@ class LEDController:
     def setupPWM(self):
         for pin in self.pinList:
             self.pi1.set_PWM_frequency(pin,600)
-            self.pi1.set_PWM_range(pin, 1000)  #1000
+            self.pi1.set_PWM_range(pin, 255 + int(745*(255-self.brightness)/255.0))  #1000
             self.pi1.set_PWM_dutycycle(pin, 0)
+    def setupPWMRange(self):
+        for pin in self.pinList:
+            self.pi1.set_PWM_range(pin, 255 + int(745*(255-self.brightness)/255.0))  #1000
     def checkBoundries(self):
         for index, _ in enumerate(self.pinList):
             if self.statusDict['color'][index] > 255:
@@ -300,7 +386,80 @@ class LEDController:
         tmp = notASCIICounter%3
         cutOffCor = 3-tmp if tmp>0 else tmp 
         return cutOffCor
-        
+    def getScriptNames(self):
+        path = "/var/lib/crystal-signal/scripts"
+        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        return onlyfiles
+    def setScriptSettings(self):
+        keyList = ['dropdown1', 'dropdown2', 'dropdown3', 'dropdown4', 'dropdown5']
+        scriptNames = self.getScriptNames()
+        scriptNames.append("---")
+        # settings contains the current ScriptSettings.json data
+        settings = self.getScriptSettings()
+        for arg in self.argList:                 
+            if arg is not "":
+                key, value = arg.split('=')      
+                key = key.lower()
+                for ent in keyList:
+                    if key == ent: 
+                        # only accept the new settings string
+                        # if it really is one of the scriptNames
+                        if urllib.unquote(value) in scriptNames:
+                            settings[ent] = value
+        with open('/var/lib/crystal-signal/ScriptSettings.json', 'w+') as outfile:
+                json.dump(settings, outfile)
+    def getScriptSettings(self):
+        path = '/var/lib/crystal-signal/ScriptSettings.json'
+        if not isfile(path):
+            ScriptSettingsInit = {'dropdown1': "---",
+                                  'dropdown2': "---",
+                                  'dropdown3': "---",
+                                  'dropdown4': "---",
+                                  'dropdown5': "---"}
+            with open(path, 'w+') as outfile:
+                json.dump(ScriptSettingsInit, outfile)
+        with open(path) as data:
+            return json.load(data)
+    def getSettings(self):
+        path = "/var/lib/crystal-signal/Settings.json"
+        if not isfile(path):
+            SettingsInit = {'brightness': 60}
+            with open(path, 'w+') as outfile:
+                    json.dump(SettingsInit, outfile)
+        with open(path) as data:
+            return json.load(data)
+    def getBrightnessSetting(self):
+        settingsDict = self.getSettings()
+        tmp = settingsDict['brightness']
+        if tmp <= 255 and tmp >= 0:
+            return tmp
+        elif tmp > 255:
+            return 255
+        else:
+            return 0
+        return settingsDict['brightness']
+    def setSettings(self):
+        path = "/var/lib/crystal-signal/Settings.json"
+        # sets one Settings entry (parameter-value pair in self.argList)
+        keyList = ['brightness']
+        # settings contains the current Settings.json data
+        settings = self.getSettings()
+        for arg in self.argList:                 
+            if arg is not "":
+                key, value = arg.split('=')      
+                key = key.lower()
+                for ent in keyList:
+                    if key == ent: 
+                        try: # Test weather or not the thing can be converted to an int
+                            settings[ent] = int(value)
+                        except ValueError:
+                            # we expect the all the entries in Settings.json to be convertable to int
+                            # if it isn't, we do nothing
+                            pass
+        with open(path, 'w+') as outfile:
+                json.dump(settings, outfile)
+
+
 
 # - - - - - - - - - - - - - - - - - 
 # SETTING UP SOCKET & CONTROLLER  -
@@ -329,3 +488,9 @@ while True:
         raise
     except:
         raise
+
+
+# - - - - - - - - - - - - - - - - 
+# - - - - - - MEMO  - - - - - - -
+# - - - - - - - - - - - - - - - -
+

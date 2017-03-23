@@ -9,7 +9,7 @@
 # OSをアップデートせずにサーバープログラムだけをインストール
 # $ sudo install.sh install
 #
-# OSアップデートとタイムゾーンのセットをした上でフルインストール
+# OSアップデートとタイムゾーンのセットをした上でインストール
 # $ sudo install.sh fullinstall
 #
 # バージョン1.1を指定してインストール
@@ -44,6 +44,7 @@ RSYNC=/usr/bin/rsync
 RM=/bin/rm
 CP=/bin/cp
 JQ=/usr/bin/jq
+MKDIR=/bin/mkdir
 MKTEMP=/bin/mktemp
 SLEEP=/bin/sleep
 RASPICONFIG=/usr/bin/raspi-config
@@ -52,6 +53,12 @@ TIMEDATECTL=/usr/bin/timedatectl
 WORKDIR=/tmp
 DOCUMENTROOT=/var/www/html
 CGIDIR=${DOCUMENTROOT}/ctrl
+
+CSPIDIR=/var/lib/crystal-signal
+SCRIPTDIR=${CSPIDIR}/scripts
+SOUNDSDIR=${CSPIDIR}/sounds
+SCRIPTCONFFILE=${CSPIDIR}/ScriptSettings.json
+GENERALCONFFILE=${CSPIDIR}/Settings.json
 
 JQUERY=jquery-3.1.1.min.js
 
@@ -136,14 +143,14 @@ function install_crystalsignal
     $JQ . $TEMP > /dev/null 2>&1
 
     if [ $? -eq 0 ]; then
-       INFO=$($JQ .info $TEMP)
-       REPEAT=$($JQ .repeat $TEMP)
-       MODE=$($JQ .mode $TEMP)
-       PERIOD=$($JQ .period $TEMP)
-       RED=$($JQ .color[0] $TEMP)
-       GREEN=$($JQ .color[1] $TEMP)
-       BLUE=$($JQ .color[2] $TEMP)
-       ACK=$($JQ .ack $TEMP)
+       INFO=$($JQ -r .info $TEMP)
+       REPEAT=$($JQ -r .repeat $TEMP)
+       MODE=$($JQ -r .mode $TEMP)
+       PERIOD=$($JQ -r .period $TEMP)
+       RED=$($JQ -r .color[0] $TEMP)
+       GREEN=$($JQ -r .color[1] $TEMP)
+       BLUE=$($JQ -r .color[2] $TEMP)
+       ACK=$($JQ -r .ack $TEMP)
        RESTORE=1
     fi
 
@@ -153,9 +160,46 @@ function install_crystalsignal
 
     $TAR xf ${WORKDIR}/crystal-signal.tar.gz -C $WORKDIR
 
-    $CP ${WORKDIR}/crystal-signal-${SERVERVER}/bin/LEDController.py /usr/local/bin
-    $CHMOD +x /usr/local/bin/LEDController.py
+    $CHMOD +x ${WORKDIR}/crystal-signal-${SERVERVER}/bin/*
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/bin/ /usr/local/bin/
 
+    # install button & alert scripts
+    if [ ! -d "${CSPIDIR}" ]; then
+        $MKDIR ${CSPIDIR}
+    fi
+
+    if [ ! -d "${SCRIPTDIR}" ]; then
+        $MKDIR ${SCRIPTDIR}
+    fi
+    
+    if [ ! -d "${SOUNDSDIR}" ]; then
+        $MKDIR ${SOUNDSDIR}
+    fi
+
+    # install version file
+    $CP ${WORKDIR}/crystal-signal-${SERVERVER}/VERSION ${CSPIDIR}
+
+    # install sample scripts
+    $CHMOD +x ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/*
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/scripts/ $SCRIPTDIR
+
+    # install sample sound files
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/sounds/ $SOUNDSDIR
+
+    # install default config file
+    if [ ! -f $GENERALCONFFILE ]; then
+        $CAT > $GENERALCONFFILE <<EOF
+{"brightness": 43}
+EOF
+    fi
+
+    if [ ! -f $SCRIPTCONFFILE ]; then
+        $CAT > $SCRIPTCONFFILE <<EOF
+{"dropdown4": "---", "dropdown5": "---", "dropdown1": "---", "dropdown2": "Ack.sh", "dropdown3": "---"}
+EOF
+    fi
+
+    # install systemd service
     $CAT > /etc/systemd/system/LEDController.service <<EOF
 [Unit]
 Description=LED Controller
@@ -168,31 +212,34 @@ ExecStart=/usr/local/bin/LEDController.py
 WantedBy=multi-user.target
 EOF
 
-    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ $DOCUMENTROOT/
-    $CHMOD +x $CGIDIR/*.py
+    # install HTML
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ ${DOCUMENTROOT}/
+    $CHMOD +x ${CGIDIR}/*.py
 
+    # delete working directory
     $RM -rf ${WORKDIR}/crystal-signal-${SERVERVER}
 
-    if [ ! -d "${DOCUMENTROOT}/css" ]; then
-        mkdir ${DOCUMENTROOT}/css
-    fi
-
-    if [ ! -d "${DOCUMENTROOT}/js" ]; then
-        mkdir ${DOCUMENTROOT}/js
-    fi
-
     # install jQuery
+    if [ ! -d "${DOCUMENTROOT}/js" ]; then
+        $MKDIR ${DOCUMENTROOT}/js
+    fi
+
     if [ ! -f "${DOCUMENTROOT}/js/${JQUERY}" ]; then
         $WGET -O ${DOCUMENTROOT}/js/${JQUERY} "https://code.jquery.com/${JQUERY}"
     fi
 
     # install bootstrap
+    if [ ! -d "${DOCUMENTROOT}/css" ]; then
+        $MKDIR ${DOCUMENTROOT}/css
+    fi
+
     if [ ! -f "${DOCUMENTROOT}/css/bootstrap-3.3.7.min.css" ]; then
         $WGET -O ${DOCUMENTROOT}/css/bootstrap-3.3.7.min.css "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap/v3-dev/dist/css/bootstrap.min.css"
     fi
     if [ ! -f "${DOCUMENTROOT}/js/bootstrap-3.3.7.min.js" ]; then
         $WGET -O ${DOCUMENTROOT}/js/bootstrap-3.3.7.min.js "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap/v3-dev/dist/js/bootstrap.min.js"
     fi
+
     # install bootstrap-slider
     if [ ! -f "${DOCUMENTROOT}/css/bootstrap-slider-9.5.1.min.css" ]; then
         $WGET -O ${DOCUMENTROOT}/css/bootstrap-slider-9.5.1.min.css "https://raw.githubusercontent.com/infiniteloop-inc/bootstrap-slider/master/dist/css/bootstrap-slider.min.css"
@@ -204,12 +251,9 @@ EOF
     $SYSTEMCTL enable LEDController.service
     $SYSTEMCTL restart LEDController.service
 
-    $SLEEP 5
-    $CURL --globoff -s "http://localhost/ctrl/?color=0,0,128&mode=1&repeat=3&period=500&info=UPDATE%20SUCCESS" > /dev/null
-
     if [ $RESTORE -eq 1 ]; then
         $SLEEP 3
-        $CURL -s "http://localhost/ctrl/?color=${RED},${GREEN},${BLUE}&mode=${MODE}&repeat=${REPEAT}&period=${PERIOD}&info=${INFO}&ack=${ACK}" > /dev/null
+        $CURL -s "http://localhost/ctrl/?color=${RED},${GREEN},${BLUE}&mode=${MODE}&repeat=${REPEAT}&period=${PERIOD}&info=${INFO}&ack=${ACK}&noscript=1" > /dev/null
     fi
 }
 
