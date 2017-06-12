@@ -1,3 +1,6 @@
+<?php
+    include_once("./setupLanguage.php");
+?>
 <!DOCTYPE html>
 <html>
     <title>Crystal Signal Pi</title>
@@ -18,6 +21,7 @@
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+
         <style>
             html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
 
@@ -46,19 +50,20 @@
             .boxRight {float: left; width: 290px; margin-left:10px; }
         </style>
     </head>
+
     <body>
 
         <!-- Navbar -->
         <nav class="navbar navbar-default" >
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="./">クリスタルシグナル・Pi</a>
+                    <a class="navbar-brand" href="./"><?php echo LABEL_TITLE;?></a>
                 </div>
                 <ul class="nav navbar-nav">
-                    <li><a href="./">Control Panel</a></li>
-                    <li><a href="./log.html">Log</a></li>
-                    <li class="active"><a href="./settings.html">Settings</a></li>
-                    <li><a href="/ctrl/">ctrl</a></li> 
+                    <li><a href="./"><?php echo LABEL_NAVBAR_ALARM_CREATION;?></a></li>
+                    <li><a href="./log.php"><?php echo LABEL_NAVBAR_LOG;?></a></li>
+                    <li class="active"><a href="./settings.php"><?php echo LABEL_NAVBAR_SETTINGS;?></a></li>
+                    <li><a href="./status.php"><?php echo LABEL_NAVBAR_STATUS;?></a></li> 
                 </ul>
             </div>
         </nav>
@@ -69,26 +74,27 @@
                 <div class="block1"> 
                     <div class="panel panel-info">
                         <div class="panel-heading">
-                            <h4>Button Settings</h4>
+                            <h4><?php echo LABEL_BUTTON_SETTINGS;?></h4>
                         </div>
                         <div class="panel-body">
+
                             <!-- dropdown menus! -->
                             </br>
                             <div class="boxLeft"> 
                                 <div style="width: 100%; height: 12px; border-bottom: 1px solid black; text-align: center">
                                     <span style="font-size: 15px; background-color: #FFFFFF; padding: 0 10px;">
-                                       消灯中 
+                                        <?php echo LABEL_WITH_ALL_ALERTS_ACKNOWLEDGED;?>
                                     </span>
                                 </div>
                             </div>
                             <br>
                             <br>
                             <div class="boxLeft"> 
-                                <span class="DropDownSpan"> 普通押し：</span>
+                                <span class="DropDownSpan"><?php echo LABEL_NORMAL_BUTTON_PRESS;?></span>
                                 <div id="dropdown1" style="float: right">
                                     <div class="dropdown">
                                         <button class="btn btn-default dropdown-toggle" type="button" style="width= 400px" data-toggle="dropdown" name="dropDown1">
-                                            loading...
+                                            <?php echo LABEL_LOADING;?>
                                         <span class="caret"></span></button>
                                         <ul class="dropdown-menu">
                                             <li><a href="#"></a></li>'
@@ -99,11 +105,11 @@
                             </br>
                             </br>
                             <div class="boxLeft"> 
-                                <span class="DropDownSpan"> 長押し：</span>
+                                <span class="DropDownSpan"><?php echo LABEL_LONG_BUTTON_PRESS;?></span>
                                 <div id="dropdown3" style="float: right">
                                     <div class="dropdown">
                                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">
-                                            loading...
+                                            <?php echo LABEL_LOADING;?>
                                         <span class="caret"></span></button>
                                         <ul class="dropdown-menu">
                                             <li><a href="#"></a></li>'
@@ -117,18 +123,18 @@
                             <div class="boxLeft"> 
                                 <div style="width: 100%; height: 12px; border-bottom: 1px solid black; text-align: center">
                                     <span style="font-size: 15px; background-color: #FFFFFF; padding: 0 10px;">
-                                        点灯中
+                                        <?php echo LABEL_WITH_PENDING_ALERT;?>
                                     </span>
                                 </div>
                             </div>
                             <br>
                             <br>
                             <div class="boxLeft"> 
-                                <span class="DropDownSpan"> 普通押し：</span>
+                                <span class="DropDownSpan"><?php echo LABEL_NORMAL_BUTTON_PRESS;?></span>
                                 <div id="dropdown2" style="float: right">
                                     <div class="dropdown">
                                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">
-                                            loading...
+                                            <?php echo LABEL_LOADING;?>
                                         <span class="caret"></span></button>
                                         <ul class="dropdown-menu">
                                             <li><a href="#"></a></li>'
@@ -139,11 +145,11 @@
                             </br>
                             </br>
                             <div class="boxLeft"> 
-                                <span class="DropDownSpan"> 長押し：</span>
+                                <span class="DropDownSpan"><?php echo LABEL_LONG_BUTTON_PRESS;?></span>
                                 <div id="dropdown4" style="float: right">
                                     <div class="dropdown">
                                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">
-                                            loading...
+                                            <?php echo LABEL_LOADING;?>
                                         <span class="caret"></span></button>
                                         <ul class="dropdown-menu">
                                             <li><a href="#"></a></li>'
@@ -158,12 +164,12 @@
                 <div class="block2"> 
                     <div class="panel panel-success">
                         <div class="panel-heading">
-                            <h4>General Settings</h4>
+                            <h4><?php echo LABEL_GENERAL_SETTINGS;?></h4>
                         </div>
                         <br>
                         <div class="panel-body">
                             <div class="boxLeft">
-                                <span class="DropDownSpan"> 明るさ設定：</span>
+                                <span class="DropDownSpan"><?php echo LABEL_BRIGHTNESS;?></span>
                                 <div id="BSlider" style="float: right">
                                     <input id="sldrBrightness" data-slider-id='SliderBrightness' type="text" data-slider-min="40" data-slider-max="100" data-slider-step="1" data-slider-value="40"/>
                                 </div>
@@ -171,11 +177,11 @@
                             </br>
                             </br>
                             <div class="boxLeft"> 
-                                <span class="DropDownSpan"> アラートが発生した後に実行：</span>
+                                <span class="DropDownSpan"><?php echo LABEL_EXECUTED_AFTER_ALERT;?></span>
                                 <div id="dropdown5" style="float: right">
                                     <div class="dropdown">
                                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">
-                                            loading...
+                                            <?php echo LABEL_LOADING;?>
                                         <span class="caret"></span></button>
                                         <ul class="dropdown-menu">
                                             <li><a href="#"></a></li>'
@@ -183,13 +189,26 @@
                                     </div>
                                 </div>
                             </div>
-                            <br>
-                            <br>
-                            <br>
-                            <br>
-                            <br>
-                            <br>
-                            <br>
+                            </br>
+                            </br>
+                            <div class="boxLeft"> 
+                                <span class="DropDownSpan"><?php echo LABEL_LANGUAGE_SETTING;?></span>
+                                <div id="dropdown6" style="float: right">
+                                    <div class="dropdown">
+                                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">
+                                            <?php echo LABEL_LOADING;?>
+                                        <span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="#"></a></li>'
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            </br>
+                            </br>
+                            </br>
+                            </br>
+                            </br>
                         </div>
                     </div>
                 </div>
@@ -199,7 +218,7 @@
 
         <script>
             function getHTML(){
-                $.get('ctrl/simpleController.py?getdropdowndata=1', function(data, status){
+                $.get('ctrl/controller.py?getdropdowndata=1', function(data, status){
                     //console.log(data);
                     parsedData = JSON.parse(data);
                     $("#dropdown1").html(parsedData[0]); 
@@ -207,7 +226,8 @@
                     $("#dropdown3").html(parsedData[2]); 
                     $("#dropdown4").html(parsedData[3]); 
                     $("#dropdown5").html(parsedData[4]); 
-                    $("#BSlider").html(parsedData[5]);
+                    $("#dropdown6").html(parsedData[5]); 
+                    $("#BSlider").html(parsedData[6]);
                     // reinit 
                     var sldrBrightness = $('#sldrBrightness').slider({
                         formatter: function(value) {
@@ -216,45 +236,59 @@
                     });
                 });
             } 
+
+            function reloadCurrentPage() 
+            {
+                window.location.href = "";
+            }
+
             $(document).ready(function(){
                 getHTML();
 
                 $(this).on("click","#dropdown1 a", function(e){ 
                     tmpText = $(this).text();
+                    console.log("test");
                     $("#dropdown1").find('button[name=dropDown1]').text(tmpText);
                     $("#dropdown1").find('button[name=dropDown1]').append('<span class="caret"></span>')
-                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown1=' + tmpText, function(data, status){
+                    $.get('ctrl/controller.py?settingupbuttons=1&dropdown1=' + tmpText, function(data, status){
                     });
                 });
                 $(this).on("click","#dropdown2 a", function(e){ 
                     tmpText = $(this).text();
                     $("#dropdown2").find('button[name=dropDown1]').text(tmpText);
                     $("#dropdown2").find('button[name=dropDown1]').append('<span class="caret"></span>')
-                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown2=' + tmpText, function(data, status){
+                    $.get('ctrl/controller.py?settingupbuttons=1&dropdown2=' + tmpText, function(data, status){
                     });
                 });
                 $(this).on("click","#dropdown3 a", function(e){ 
                     tmpText = $(this).text();
                     $("#dropdown3").find('button[name=dropDown1]').text(tmpText);
                     $("#dropdown3").find('button[name=dropDown1]').append('<span class="caret"></span>')
-                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown3=' + tmpText, function(data, status){
+                    $.get('ctrl/controller.py?settingupbuttons=1&dropdown3=' + tmpText, function(data, status){
                     });
                 });
                 $(this).on("click","#dropdown4 a", function(e){ 
                     tmpText = $(this).text();
                     $("#dropdown4").find('button[name=dropDown1]').text(tmpText);
                     $("#dropdown4").find('button[name=dropDown1]').append('<span class="caret"></span>')
-                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown4=' + tmpText, function(data, status){
+                    $.get('ctrl/controller.py?settingupbuttons=1&dropdown4=' + tmpText, function(data, status){
                     });
                 });
                 $(this).on("click","#dropdown5 a", function(e){ 
                     tmpText = $(this).text();
                     $("#dropdown5").find('button[name=dropDown1]').text(tmpText);
                     $("#dropdown5").find('button[name=dropDown1]').append('<span class="caret"></span>')
-                    $.get('ctrl/simpleController.py?settingupbuttons=1&dropdown5=' + tmpText, function(data, status){
+                    $.get('ctrl/controller.py?settingupbuttons=1&dropdown5=' + tmpText, function(data, status){
                     });
                 });
-
+                $(this).on("click","#dropdown6 a", function(e){ 
+                    tmpText = $(this).text();
+                    $("#dropdown6").find('button[name=dropDown1]').text(tmpText);
+                    $("#dropdown6").find('button[name=dropDown1]').append('<span class="caret"></span>')
+                    $.get('ctrl/controller.py?settingupsettings=1&language=' + tmpText, function(data, status){
+                    });
+                    window.setTimeout(reloadCurrentPage, 500);
+                });
                 // SLIDERS
                 var sldrBrightness = $('#sldrBrightness').slider({
                     formatter: function(value) {
@@ -264,7 +298,7 @@
                 $(this).on("slideStop", "#sldrBrightness", function(e){
                     tmp = Math.round((e.value - 40)*(255/60))
                     console.log(tmp)
-                    $.get('ctrl/simpleController.py?settingupsettings=1&brightness=' + tmp, function(data, status){
+                    $.get('ctrl/controller.py?settingupsettings=1&brightness=' + tmp, function(data, status){
                     });
                 });
             });

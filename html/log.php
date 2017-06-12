@@ -1,3 +1,7 @@
+<?php
+    include_once("./setupLanguage.php");
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -32,13 +36,13 @@
         <nav class="navbar navbar-default" >
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="./">クリスタルシグナル・Pi</a>
+                    <a class="navbar-brand" href="./"><?php echo LABEL_TITLE ?></a>
                 </div>
                 <ul class="nav navbar-nav">
-                    <li><a href="./">Control Panel</a></li>
-                    <li class="active"><a href="./log.html">Log</a></li>
-                    <li><a href="./settings.html">Settings</a></li>
-                    <li><a href="/ctrl/">ctrl</a></li> 
+                    <li><a href="./"><?php echo LABEL_NAVBAR_ALARM_CREATION;?></a></li>
+                    <li class="active"><a href="./log.php"><?php echo LABEL_NAVBAR_LOG;?></a></li>
+                    <li><a href="./settings.php"><?php echo LABEL_NAVBAR_SETTINGS;?></a></li>
+                    <li><a href="./status.php"><?php echo LABEL_NAVBAR_STATUS;?></a></li> 
                 </ul>
             </div>
         </nav>
@@ -50,9 +54,9 @@
                 <div class="block1"> 
 
                     <!-- buttons! -->
-                    <button type="button" class="btn btn-warning horizontalSpacer" name="btnAckAlarm">アラートを消す</button>
-                    <button type="button" class="btn btn-success horizontalSpacer" name="btnUpdateLog">Update Log</button>
-                    <button type="button" class="btn btn-danger horizontalSpacer" name="btnDeleteLog">Delete Log</button>
+                    <button type="button" class="btn btn-warning horizontalSpacer" name="btnAckAlarm"><?php echo LABEL_ACK ?> </button>
+                    <button type="button" class="btn btn-success horizontalSpacer" name="btnUpdateLog"><?php echo LABEL_UPDATE_LOG ?></button>
+                    <button type="button" class="btn btn-danger horizontalSpacer" name="btnDeleteLog"><?php echo LABEL_DELETE_LOG ?></button>
                     <div id="tableData"></div>
                 </div>
 
@@ -62,15 +66,14 @@
 
         <script>
             function getTable(){
-                $.get('ctrl/simpleController.py?getlogdata=1', function(data, status){
-                    //console.log(data);
+                $.get('ctrl/controller.py?getlogdata=1', function(data, status){
                     $("#tableData").html(data); 
                 });
             } 
             $(document).ready(function(){
                 // BUTTONS
                 $('button[name=btnAckAlarm]').click(function(){
-                    $.get('ctrl/simpleController.py?ack=1', function(data, status){
+                    $.get('ctrl/controller.py?ack=1', function(data, status){
                     });
                     setTimeout(function(){
                         getTable();
@@ -80,7 +83,7 @@
                     getTable();
                 });
                 $('button[name=btnDeleteLog]').click(function(){
-                    $.get('ctrl/simpleController.py?getlogdata=1&deletelog=1', function(data, status){
+                    $.get('ctrl/controller.py?getlogdata=1&deletelog=1', function(data, status){
                         $("#tableData").html(data); 
                     });
                 });
