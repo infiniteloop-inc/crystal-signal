@@ -27,7 +27,7 @@
         <!-- set the language. This is only done when there's no language setting -->
         <?php
             if($languageFromSettings == "none"){
-                echo "<script> $.get('ctrl/controller.py?settingupsettings=1&language=english', function(data, status){});</script>"; 
+                echo "<script> $.get('ctrl/controller.py?settingupsettings=1&language=" . $language . "', function(data, status){});</script>"; 
             }
         ?>
 
@@ -112,7 +112,7 @@
                             </div>
                             <div class="buttonBox">
                                 <br>
-                                <input id="sldrPeriod" data-slider-id='SliderPeriod' type="text" data-slider-min="100" data-slider-max="6000" data-slider-step="1" data-slider-value="1000"/>
+                                <input id="sldrPeriod" data-slider-id='SliderPeriod' type="text" data-slider-min="10" data-slider-max="3000" data-slider-step="1" data-slider-value="1000"/>
                                 <br><br><br>
                                 <input id="sldrRepeat" data-slider-id='SliderRepeat' type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="0"/>
                                 <br>

@@ -21,7 +21,10 @@
     {
         $json = file_get_contents("/var/lib/crystal-signal/Settings.json");
         $json_data = json_decode($json, true);
-        $languageFromSettings = $json_data["language"];
+        if(array_key_exists("language", $json_data))
+        {
+            $languageFromSettings = $json_data["language"];
+        }
     }
 
     // set language
