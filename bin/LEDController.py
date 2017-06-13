@@ -32,7 +32,6 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 # - - LED CONTROLLER CLASS  - - -
 # - - - - - - - - - - - - - - - -
 class LEDController:
-
     def __init__(self):
         self.pi1 = pigpio.pi('localhost', 8888)
         self.buttonController = ButtonController()
@@ -55,9 +54,9 @@ class LEDController:
                         'period': "length of blinking period (in millisecs)",
                         'repeat': "if x > 0 -> stop after blinking x times",
                           'mode': "0-> ON, 1-> blinking, 2-> blinking asynchronously",
-                           'ack': "parameter to acknowledge an alarm / blinking pattern",
+                           'ack': "parameter to acknowledge an alert / blinking pattern",
                           'json': "0 -> status response in HTML, 1 -> status response in Json",
-                          'info': "information about the alarm"}
+                          'info': "information about the alert"}
         self.logList = []
         self.brightness = self.getBrightnessSetting()
         self.setupPWM()
@@ -151,7 +150,7 @@ class LEDController:
         time.sleep(0.1)
 
     def blinking(self):
-        if self.stepCounter < 255:
+        if self.stepCounter < self.numOfSteps:
             self.stepCounter += 1
         else:
             self.halfPeriodCounter += 1
@@ -162,30 +161,29 @@ class LEDController:
             self.risingEdge = not self.risingEdge
         for index, pin in enumerate(self.pinList):
             if self.risingEdge:
-                self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index]*
-                    (math.cos(self.stepCounter/255.0*math.pi - math.pi)/2.0 + 0.5)))
+                self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index] *
+                    (math.cos(self.stepCounter / float(self.numOfSteps) * math.pi - math.pi) / 2.0 + 0.5)))
             else:
-                self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index] -
-                    self.statusDict['color'][index]*(math.cos(self.stepCounter/255.0*math.pi - math.pi)/2.0 + 0.5)))
+                self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index] * 
+                    ( 1 - (math.cos(self.stepCounter / float(self.numOfSteps) * math.pi - math.pi) / 2.0 + 0.5))))
         time.sleep(self.stepDuration / 1000.0)
 
     def asynchBlinking(self):
         for index, pin in enumerate(self.pinList):
             if self.getTimeInMilliSec() > self.oldTimeM2[index] + self.stepDurationM2[index]:
                 self.oldTimeM2[index] = self.getTimeInMilliSec()
-                if self.stepCounterM2[index] < 255:
+                if self.stepCounterM2[index] < self.numOfSteps:
                     self.stepCounterM2[index] += 1
                 else:
                     self.stepCounterM2[index] = 0
                     self.risingEdgeM2[index] = not self.risingEdgeM2[index]
                 if self.risingEdgeM2[index]:
-                    self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index]*
-                        (math.cos(self.stepCounterM2[index]/255.0*math.pi - math.pi)/2.0 + 0.5)))
+                    self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index] *
+                        (math.cos(self.stepCounterM2[index] / float(self.numOfSteps) * math.pi - math.pi)/2.0 + 0.5)))
                 else:
-                    self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index] -
-                        self.statusDict['color'][index]*(math.cos(self.stepCounterM2[index]/255.0*math.pi - math.pi)/2.0 + 0.5)))
-        # sleep for 2ms
-        time.sleep(0.002)
+                    self.pi1.set_PWM_dutycycle(pin, int(self.statusDict['color'][index] *
+                        ( 1 - (math.cos(self.stepCounterM2[index] / float(self.numOfSteps) * math.pi - math.pi)/2.0 + 0.5))))
+        time.sleep(0.5 * self.stepDuration / 1000.0)
 
     def update(self):
         self.buttonController.update(self.pi1.read(4), self.statusDict['ack'])
@@ -224,7 +222,8 @@ class LEDController:
         self.halfPeriodCounter = 0
         self.periodCounter = 0
         self.repeatEnded = False
-        self.stepDuration = self.statusDict['period'] / 510.0
+        self.numOfSteps = round(self.statusDict['period'] / 10.0) + 1
+        self.stepDuration = self.statusDict['period'] / (self.numOfSteps * 2)
         self.stepCounter = 0
         self.risingEdge = True
 
@@ -385,7 +384,7 @@ class LEDController:
                 break
 
     def resetUpdateParaMode2(self):
-        durTmp = self.statusDict['period'] / 510.0
+        durTmp = self.statusDict['period'] / self.numOfSteps
         self.stepDurationM2 = [int((random.random()-0.5)*durTmp + durTmp),
                                int((random.random()-0.5)*durTmp + durTmp),
                                int((random.random()-0.5)*durTmp + durTmp)]
@@ -548,3 +547,5 @@ while True:
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
 
+# TODO:
+# - 
