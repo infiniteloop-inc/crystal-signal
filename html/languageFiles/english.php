@@ -25,13 +25,13 @@ define('LABEL_DELETE_LOG', 'Delete Log');
 define('LABEL_BUTTON_SETTINGS', 'Button Settings');
 define('LABEL_GENERAL_SETTINGS', 'General Settings');
 define('LABEL_LOADING', 'Loading...');
-define('LABEL_WITH_PENDING_ALERT', 'With Pending Alert');
-define('LABEL_WITH_ALL_ALERTS_ACKNOWLEDGED', 'With All Alerts Acknowledged');
-define('LABEL_NORMAL_BUTTON_PRESS', 'Normal Button Press');
-define('LABEL_LONG_BUTTON_PRESS', 'Long Button Press');
+define('LABEL_WITH_PENDING_ALERT', 'With pending alert');
+define('LABEL_WITH_ALL_ALERTS_ACKNOWLEDGED', 'With all alerts acknowledged');
+define('LABEL_NORMAL_BUTTON_PRESS', 'Normal button press');
+define('LABEL_LONG_BUTTON_PRESS', 'Long button press');
 
-define('LABEL_BRIGHTNESS', 'Overall Brightness');
-define('LABEL_EXECUTED_AFTER_ALERT', 'Executed After Each Alert');
+define('LABEL_BRIGHTNESS', 'Overall brightness');
+define('LABEL_EXECUTED_AFTER_ALERT', 'Executed after each alert');
 define('LABEL_LANGUAGE_SETTING', 'Language');
 
 // status.php labels

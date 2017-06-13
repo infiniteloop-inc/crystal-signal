@@ -2,7 +2,7 @@
 
 This repository contains the middleware needed to run the Crystal Signal Pi hardware. [Go to the english README](./doc/README_ENGLISH.md).
 
-### ‚±‚ÌƒŠƒ|ƒWƒgƒŠ‚Í‰½H
+### ã“ã®ãƒªãƒã‚¸ãƒˆãƒªã¯ä½•ï¼Ÿ
 
-[Š”®‰ïĞƒCƒ“ƒtƒBƒjƒbƒgƒ‹[ƒv](https://www.infiniteloop.co.jp/)‚ª”Ì”„‚·‚é[Crystal Signal Pi](http://crystal-signal.com/)‚ğ“®ì‚³‚¹‚é‚½‚ß‚ÌAƒ~ƒhƒ‹ƒEƒFƒAˆê®‚Å‚·B
-[“ú–{Œê‚ÌREADME‚Í‚±‚¿‚ç‚Å‚·](./doc/README_JAPANESE.md)B
+[æ ªå¼ä¼šç¤¾ã‚¤ãƒ³ãƒ•ã‚£ãƒ‹ãƒƒãƒˆãƒ«ãƒ¼ãƒ—](https://www.infiniteloop.co.jp/)ãŒè²©å£²ã™ã‚‹[Crystal Signal Pi](http://crystal-signal.com/)ã‚’å‹•ä½œã•ã›ã‚‹ãŸã‚ã®ã€ãƒŸãƒ‰ãƒ«ã‚¦ã‚§ã‚¢ä¸€å¼ã§ã™ã€‚
+[æ—¥æœ¬èªã®READMEã¯ã“ã¡ã‚‰ã§ã™](./doc/README_JAPANESE.md)ã€‚
