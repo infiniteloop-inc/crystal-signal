@@ -23,14 +23,6 @@
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
 
-        
-        <!-- set the language. This is only done when there's no language setting -->
-        <?php
-            if($languageFromSettings == "none"){
-                echo "<script> $.get('ctrl/controller.py?settingupsettings=1&language=english', function(data, status){});</script>"; 
-            }
-        ?>
-
         <style>
             html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
 
@@ -117,7 +109,7 @@
                 var SenderObj = {
                     send: function(){
                         queryString = '';
-                        $.get("ctrl/controller.py" + queryString, function(data, status){
+                        $.get("ctrl/simpleController.py" + queryString, function(data, status){
                             $("#statusText").html(data); 
                         });
                     }

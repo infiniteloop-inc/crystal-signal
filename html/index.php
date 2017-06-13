@@ -27,7 +27,7 @@
         <!-- set the language. This is only done when there's no language setting -->
         <?php
             if($languageFromSettings == "none"){
-                echo "<script> $.get('ctrl/controller.py?settingupsettings=1&language=" . $language . "', function(data, status){});</script>"; 
+                echo "<script> $.get('ctrl/simpleController.py?settingupsettings=1&language=" . $language . "', function(data, status){});</script>"; 
             }
         ?>
 
@@ -217,7 +217,7 @@
                                 queryString += '&info=' + this.info;
                             }
                         $("#showQueryString").val(window.location.href + "ctrl/" + queryString);
-                        $.get("ctrl/controller.py" + queryString, function(data, status){
+                        $.get("ctrl/simpleController.py" + queryString, function(data, status){
                             $("#statusText").html(data); 
                         });
                     }
@@ -282,7 +282,7 @@
                     // BUTTONS
                 $('button[name=btnAckAlarm]').click(function(){
                     $("#showQueryString").val(window.location.href + "ctrl/" + "?ack=1");
-                    $.get('ctrl/controller.py?ack=1', function(data, status){
+                    $.get('ctrl/simpleController.py?ack=1', function(data, status){
                         $("#statusText").html(data); 
                     });
                 });
