@@ -1,6 +1,10 @@
+<?php
+    include_once("./setupLanguage.php");
+?>
+
 <!DOCTYPE html>
 <html>
-    <title>Crystal Signal Pi</title>
+    <title><?php echo LABEL_TITLE ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
 
@@ -18,6 +22,14 @@
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+
+        
+        <!-- set the language. This is only done when there's no language setting -->
+        <?php
+            if($languageFromSettings == "none"){
+                echo "<script> $.get('ctrl/simpleController.py?settingupsettings=1&language=" . $language . "', function(data, status){});</script>"; 
+            }
+        ?>
 
         <style>
             html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
@@ -64,19 +76,20 @@
 
         </style>
     </head>
+
     <body>
 
         <!-- Navbar -->
         <nav class="navbar navbar-default" >
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="./">クリスタルシグナル・Pi</a>
+                    <a class="navbar-brand" href="./"><?php echo LABEL_TITLE;?></a>
                 </div>
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="./">Control Panel</a></li>
-                    <li><a href="./log.html">Log</a></li>
-                    <li><a href="./settings.html">Settings</a></li>
-                    <li><a href="/ctrl/">ctrl</a></li> 
+                    <li class="active"><a href="./"><?php echo LABEL_NAVBAR_ALARM_CREATION;?></a></li>
+                    <li><a href="./log.php"><?php echo LABEL_NAVBAR_LOG;?></a></li>
+                    <li><a href="./settings.php"><?php echo LABEL_NAVBAR_SETTINGS;?></a></li>
+                    <li><a href="./status.php"><?php echo LABEL_NAVBAR_STATUS;?></a></li> 
                 </ul>
             </div>
         </nav>
@@ -86,7 +99,7 @@
                 <div class="block1">
                     <div class="panel panel-info">
                         <div class="panel-heading">
-                            <h4>Alarm Settings</h4>
+                            <h4><?php echo LABEL_BOX_ALERT_SETTINGS?></h4>
                         </div>
                         <div class="panel-body">
                             <div class="sliderBox">
@@ -99,15 +112,15 @@
                             </div>
                             <div class="buttonBox">
                                 <br>
-                                <input id="sldrPeriod" data-slider-id='SliderPeriod' type="text" data-slider-min="100" data-slider-max="6000" data-slider-step="1" data-slider-value="1000"/>
+                                <input id="sldrPeriod" data-slider-id='SliderPeriod' type="text" data-slider-min="10" data-slider-max="3000" data-slider-step="1" data-slider-value="1000"/>
                                 <br><br><br>
                                 <input id="sldrRepeat" data-slider-id='SliderRepeat' type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="0"/>
                                 <br>
                                 <div class="innerButtonBox1">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnOn">点灯</button>
-                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnBlink">点滅</button>
-                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnAsynchBlink">非同期点滅</button><br>
+                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnOn"><?php echo LABEL_ON;?></button>
+                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnBlink"><?php echo LABEL_FLASHING;?></button>
+                                        <button type="button" class="btn btn-default horizontalSpacer" name="btnAsynchBlink"><?php echo LABEL_ASYNCH_FLASHING;?></button><br>
                                     </div>
                                 </div>
                                 <div class="innerButtonBox2">
@@ -119,16 +132,18 @@
                             </div>
                             <div class="innerInputBox">
                                 <div class="form-group">
-                                    <label for="usr">Info Text:</label>
+                                    <label for="usr"><?php echo LABEL_INFO_TEXT?></label>
                                     <input type="text" class="form-control" id="infoText"> 
                                 </div>
                                 <div class="form-group">
-                                    <label for="usr">QueryString:</label>
+                                    <label for="usr"><?php echo LABEL_ALERT_STRING?></label>
                                     <input type="text" class="form-control" id="showQueryString"> 
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-warning horizontalSpacer" name="btnAckAlarm">アラートを消す</button>
-                            <button type="button" class="btn btn-default horizontalSpacer" name="btnSend">Send</button>
+                            <button type="button" class="btn btn-warning horizontalSpacer" name="btnAckAlarm">
+                                <?php echo LABEL_ACK?>
+                            </button>
+                            <button type="button" class="btn btn-default horizontalSpacer" name="btnSend"><?php echo LABEL_SEND;?></button>
                         </div>
                     </div>
                 </div>
@@ -136,7 +151,7 @@
                 <div class="block2">
                     <div class="panel panel-success">
                         <div class="panel-heading">
-                            <h4>Status Response</h4>
+                            <h4><?php echo LABEL_STATUS_RESPONSE;?></h4>
                         </div>
                         <div class="panel-body">
                             <div id="statusText">
@@ -266,7 +281,7 @@
 
                     // BUTTONS
                 $('button[name=btnAckAlarm]').click(function(){
-                    $("#showQueryString").val("?ack=1");
+                    $("#showQueryString").val(window.location.href + "ctrl/" + "?ack=1");
                     $.get('ctrl/simpleController.py?ack=1', function(data, status){
                         $("#statusText").html(data); 
                     });
@@ -307,5 +322,3 @@
         </script>
     </body>
 </html>
-
-

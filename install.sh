@@ -214,6 +214,9 @@ ExecStart=/usr/local/bin/LEDController.py
 WantedBy=multi-user.target
 EOF
 
+    # install php 5
+    $APT install php5 libapache2-mod-php5 -y
+
     # install HTML
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ ${DOCUMENTROOT}/
     $CHMOD +x ${CGIDIR}/*.py
