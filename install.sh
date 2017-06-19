@@ -109,12 +109,10 @@ function install_pigpiod
 function install_apache
 {
     apt_update
-    $APT install -y apache2
+    $APT install -y apache2 php5
 
     $SED -i -e '/.*#AddHandler cgi-script .cgi$/i \\tAddHandler cgi-script .py' /etc/apache2/mods-available/mime.conf
     $A2ENMOD cgi
-
-    $APT install php5 libapache2-mod-php5 -y
 
     $CAT > /etc/apache2/conf-available/crystal-signal.conf <<EOF
 <Directory /var/www/html/ctrl>
@@ -214,8 +212,6 @@ ExecStart=/usr/local/bin/LEDController.py
 WantedBy=multi-user.target
 EOF
 
-    # install php 5
-    $APT install php5 libapache2-mod-php5 -y
 
     # install HTML
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ ${DOCUMENTROOT}/
