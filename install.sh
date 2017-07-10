@@ -212,8 +212,10 @@ ExecStart=/usr/local/bin/LEDController.py
 WantedBy=multi-user.target
 EOF
 
+    # delete index.html files
+    $RM -f ${DOCUMENTROOT}/index.html
 
-    # install HTML
+    # install .php / .py files
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ ${DOCUMENTROOT}/
     $CHMOD +x ${CGIDIR}/*.py
 
@@ -258,12 +260,49 @@ EOF
     fi
 }
 
+function clean_up_old_html
+{
+    version=1.0
+    if [ -f "${CSPIDIR}/VERSION" ]; then
+        version=$(cat ${CSPIDIR}/VERSION)
+    fi
+
+    version_lt $version 1.3
+    if [ $? -eq 0 ]; then
+        delete_html_files
+    fi
+}
+
+function delete_html_files
+{
+    for delfile in index.html log.html settings.html
+    do
+        if [ -f "${DOCUMENTROOT}/${delfile}" ]; then
+            $RM -f ${DOCUMENTROOT}/${delfile}
+        fi
+    done
+
+    for delfile in ctrl_LowerHalf.html ctrl_UpperHalf.html
+    do
+        if [ -f "${CGIDIR}/${delfile}" ]; then
+            $RM -f ${CGIDIR}/${delfile}
+        fi
+    done
+}
+
+function version_lt
+{
+    test "$(printf '%s\n' "$@" | sort -Vr | head -n 1)" != "$1"
+}
+
 case "$1" in
     "update")
+        clean_up_old_html
         install_crystalsignal
         ;;
     "fullupdate")
         os_update
+        clean_up_old_html
         install_crystalsignal
         ;;
     "install")
