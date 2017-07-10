@@ -49,6 +49,8 @@ MKTEMP=/bin/mktemp
 SLEEP=/bin/sleep
 RASPICONFIG=/usr/bin/raspi-config
 TIMEDATECTL=/usr/bin/timedatectl
+SORT=/usr/bin/sort
+HEAD=/usr/bin/head
 
 WORKDIR=/tmp
 DOCUMENTROOT=/var/www/html
@@ -268,31 +270,20 @@ function clean_up_old_html
     fi
 
     version_lt $version 1.3
+
     if [ $? -eq 0 ]; then
-        delete_html_files
+        for delfile in ${DOCUMENTROOT}/index.html ${DOCUMENTROOT}/log.html ${DOCUMENTROOT}/settings.html ${CGIDIR}/ctrl_LowerHalf.html ${CGIDIR}/ctrl_UpperHalf.html
+        do
+            if [ -f "${delfile}" ]; then
+                $RM -f ${delfile}
+            fi
+        done
     fi
-}
-
-function delete_html_files
-{
-    for delfile in index.html log.html settings.html
-    do
-        if [ -f "${DOCUMENTROOT}/${delfile}" ]; then
-            $RM -f ${DOCUMENTROOT}/${delfile}
-        fi
-    done
-
-    for delfile in ctrl_LowerHalf.html ctrl_UpperHalf.html
-    do
-        if [ -f "${CGIDIR}/${delfile}" ]; then
-            $RM -f ${CGIDIR}/${delfile}
-        fi
-    done
 }
 
 function version_lt
 {
-    test "$(printf '%s\n' "$@" | sort -Vr | head -n 1)" != "$1"
+    [ "$(printf '%s\n' "$@" | $SORT -Vr | $HEAD -n 1)" != "$1" ]
 }
 
 case "$1" in
