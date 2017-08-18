@@ -3,25 +3,32 @@
 #
 # *** How to use ***
 #
-# 下記のinstallと同等
+# 下記のinstallと同等です。
+# Same as "install" below
 # $ sudo install.sh
 #
-# OSをアップデートせずにサーバープログラムだけをインストール
+# OSをアップデートせずにサーバープログラムだけをインストールします。
+# Install Crystal Signal Pi middleware(without OS update).
 # $ sudo install.sh install
 #
-# OSアップデートとタイムゾーンのセットをした上でインストール
+# OSアップデートとタイムゾーンのセットをした上でインストールします。
+# Install Crystal Signal Pi middleware(with OS update and set timezone).
 # $ sudo install.sh fullinstall
 #
-# バージョン1.1を指定してインストール
-# $ sudo install.sh -r 1.1
+# バージョンを指定してインストールします(VERSIONはGitHub上のリリースまたはブランチ名です)。
+# Install with version specified(VERSION is release or branch on GitHub Repository).
+# $ sudo install.sh -r VERSION
 #
-# サーバープログラムのみを最新にアップデート
+# サーバープログラムのみを最新にアップデートします。
+# Update Crystal Signal Pi middleware(without OS update).
 # $ sudo install.sh update
 #
-# サーバープログラムをバージョン1.2へアップデート
-# $ sudo install.sh -r 1.2 update
+# サーバープログラムを指定のバージョンへアップデートします。
+# Update Crystal Signal Pi middleware to specific version(without OS update).
+# $ sudo install.sh -r VERSION update
 #
-# OSとサーバープログラムを最新にアップデート
+# OSとサーバープログラムを最新にアップデートします。
+# Update Crystal Signal Pi middleware and OS to latest release.
 # $ sudo install.sh fullupdate
 #
 
@@ -49,6 +56,8 @@ MKTEMP=/bin/mktemp
 SLEEP=/bin/sleep
 RASPICONFIG=/usr/bin/raspi-config
 TIMEDATECTL=/usr/bin/timedatectl
+SORT=/usr/bin/sort
+HEAD=/usr/bin/head
 
 WORKDIR=/tmp
 DOCUMENTROOT=/var/www/html
@@ -109,7 +118,7 @@ function install_pigpiod
 function install_apache
 {
     apt_update
-    $APT install -y apache2
+    $APT install -y apache2 php5
 
     $SED -i -e '/.*#AddHandler cgi-script .cgi$/i \\tAddHandler cgi-script .py' /etc/apache2/mods-available/mime.conf
     $A2ENMOD cgi
@@ -212,7 +221,10 @@ ExecStart=/usr/local/bin/LEDController.py
 WantedBy=multi-user.target
 EOF
 
-    # install HTML
+    # delete index.html files
+    $RM -f ${DOCUMENTROOT}/index.html
+
+    # install .php / .py files
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/html/ ${DOCUMENTROOT}/
     $CHMOD +x ${CGIDIR}/*.py
 
@@ -257,12 +269,38 @@ EOF
     fi
 }
 
+function clean_up_old_html
+{
+    version=1.0
+    if [ -f "${CSPIDIR}/VERSION" ]; then
+        version=$(cat ${CSPIDIR}/VERSION)
+    fi
+
+    version_lt $version 1.3
+
+    if [ $? -eq 0 ]; then
+        for delfile in ${DOCUMENTROOT}/index.html ${DOCUMENTROOT}/log.html ${DOCUMENTROOT}/settings.html ${CGIDIR}/ctrl_LowerHalf.html ${CGIDIR}/ctrl_UpperHalf.html
+        do
+            if [ -f "${delfile}" ]; then
+                $RM -f ${delfile}
+            fi
+        done
+    fi
+}
+
+function version_lt
+{
+    [ "$(printf '%s\n' "$@" | $SORT -Vr | $HEAD -n 1)" != "$1" ]
+}
+
 case "$1" in
     "update")
+        clean_up_old_html
         install_crystalsignal
         ;;
     "fullupdate")
         os_update
+        clean_up_old_html
         install_crystalsignal
         ;;
     "install")
