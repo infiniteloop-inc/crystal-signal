@@ -3,25 +3,32 @@
 #
 # *** How to use ***
 #
-# 下記のinstallと同等
+# 下記のinstallと同等です。
+# Same as "install" below
 # $ sudo install.sh
 #
-# OSをアップデートせずにサーバープログラムだけをインストール
+# OSをアップデートせずにサーバープログラムだけをインストールします。
+# Install Crystal Signal Pi middleware(without OS update).
 # $ sudo install.sh install
 #
-# OSアップデートとタイムゾーンのセットをした上でインストール
+# OSアップデートとタイムゾーンのセットをした上でインストールします。
+# Install Crystal Signal Pi middleware(with OS update and set timezone).
 # $ sudo install.sh fullinstall
 #
-# バージョン1.1を指定してインストール
-# $ sudo install.sh -r 1.1
+# バージョンを指定してインストールします(VERSIONはGitHub上のリリースまたはブランチ名です)。
+# Install with version specified(VERSION is release or branch on GitHub Repository).
+# $ sudo install.sh -r VERSION
 #
-# サーバープログラムのみを最新にアップデート
+# サーバープログラムのみを最新にアップデートします。
+# Update Crystal Signal Pi middleware(without OS update).
 # $ sudo install.sh update
 #
-# サーバープログラムをバージョン1.2へアップデート
-# $ sudo install.sh -r 1.2 update
+# サーバープログラムを指定のバージョンへアップデートします。
+# Update Crystal Signal Pi middleware to specific version(without OS update).
+# $ sudo install.sh -r VERSION update
 #
-# OSとサーバープログラムを最新にアップデート
+# OSとサーバープログラムを最新にアップデートします。
+# Update Crystal Signal Pi middleware and OS to latest release.
 # $ sudo install.sh fullupdate
 #
 
