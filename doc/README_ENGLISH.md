@@ -68,7 +68,7 @@ Here you can set up an alert / blinking pattern and copy the resulting "Alert Ex
 * On the "Settings" tab you will find General Settings as well as the setup of the Crystal Signal Pi's Button Scripts (more on that later).  
 * The "Status" tab will show you what kind of alert is currently pending.
 
-![](img/control.png)
+![](img/control_en.png)
 
 ### Using the API
 
@@ -95,14 +95,14 @@ $ curl 'http://172.16.1.10/ctrl/?color=10,200,30&mode=1&repeat=0&period=500'
 Note how issuing alerts from other computers on the same network is as simple as copying a URL. As soon as the URL gets accessed, the alert inscribed in it will get executed.
 When creating a new alert on the Alarm Creation tab of the Web UI, it's URL will show up in the "Alert Execution String" Field. Just copy and execute the URL from anywhere on the network to issue an alert on the Crystal Signal Pi.
 
-![](img/query.png)
+![](img/query_en.png)
 
 ### Custom Script Execution on Alert / Button Press
 
 The Crystal Signal Pi allows you to execute custom scripts (shell scripts) on alert execution / button press. The button mentioned here is the one placed on the Crystal Signal Pi PCB.
 In the default setup, the button acts as a acknowledge-all-alerts button when pressed while a alarm is pending. This script is named "Ack.sh" and can be found here: /var/lib/crystal-signal/scripts.
 
-![](img/settings.png)
+![](img/settings_en.png)
 
 You can assign your own scripts to the Crystal Signal Pi by simply dropping them into the /var/lib/crystal-signal/scripts directory.
 After adding a script, it will show up as an entry in the drop down menu of the Settings tab (you may need to reload the page). 
@@ -134,6 +134,6 @@ Each log message contains information about
 * Whether or not the alarm was acknowledged or still is pending
 
 
-![](img/log.png)
+![](img/log_en.png)
 
 The log gets cleared on restart.
