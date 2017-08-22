@@ -58,6 +58,7 @@ RASPICONFIG=/usr/bin/raspi-config
 TIMEDATECTL=/usr/bin/timedatectl
 SORT=/usr/bin/sort
 HEAD=/usr/bin/head
+OPENJTALK=/usr/bin/open_jtalk
 
 WORKDIR=/tmp
 DOCUMENTROOT=/var/www/html
@@ -146,6 +147,11 @@ function install_crystalsignal
         $APT install -y jq
     fi
 
+    if [ ! -x $OPENJTALK ]; then
+        apt_update
+        $APT install -y open-jtalk open-jtalk-mecab-naist-jdic hts-voice-nitech-jp-atr503-m001
+    fi
+
     RESTORE=0
     TEMP=$($MKTEMP)
     $CURL -s 'http://localhost/ctrl/?json=1' > $TEMP
@@ -180,7 +186,7 @@ function install_crystalsignal
     if [ ! -d "${SCRIPTDIR}" ]; then
         $MKDIR ${SCRIPTDIR}
     fi
-    
+
     if [ ! -d "${SOUNDSDIR}" ]; then
         $MKDIR ${SOUNDSDIR}
     fi
