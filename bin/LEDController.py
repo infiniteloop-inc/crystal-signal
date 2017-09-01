@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 
 import sys
 import math
@@ -14,6 +15,7 @@ from os import listdir
 from os.path import isfile, join, splitext
 from ButtonController import ButtonController
 from AlarmScriptController import AlarmScriptController
+from SpeakMessageController import SpeakMessageController 
 
 # - - - - - - - - - - - - - - - -
 # - - - - SOCKET CLASSES  - - - -
@@ -36,27 +38,34 @@ class LEDController:
         self.pi1 = pigpio.pi('localhost', 8888)
         self.buttonController = ButtonController()
         self.alarmScriptController = AlarmScriptController()
+        self.speakMsgController = SpeakMessageController("/var/lib/crystal-signal/soundFiles/speakMsg.wav")
         self.pinList = [14, 15, 18]
         self.pi1.set_mode(4, pigpio.INPUT)
         self.pi1.set_pull_up_down(4, pigpio.PUD_OFF)
         self.queryString = ""
-        self.statusDict = {'color': [0,0,0],    # 0 ~ 255 rgb
+        self.statusDict = {
+                       'color': [0,0,0],    # 0 ~ 255 rgb
                         'mode': 0,          # 0 -> constant on, 1 -> blinking, 2: asynchron blinking
                       'period': 1000,       # in milliseconds
                       'repeat': 0,          # if x > 0 -> stop after blinking x times
                          'ack': 1,          # was the current alarm acknowledged? 0 -> NO, 1 -> YES
                         'json': 0,          # 0 -> status response in HTML, 1 -> status response in Json
                         'info': "",         # info
+                        'speak': "",        # speak Message (japanese only) 
                         'remote_addr': 0,   # Where was the request sent from?
-                        'remote_host': 0}   # What is the name of the request sender?
-        self.listOfKeys = ['color', 'period', 'repeat', 'mode', 'ack', 'json', 'info']
-        self.explanationDict = {'color': "rgb values from 0 ~ 255",
+                        'remote_host': 0    # What is the name of the request sender?
+                        }   
+        self.listOfKeys = ['color', 'period', 'repeat', 'mode', 'ack', 'json', 'info', 'speak']
+        self.explanationDict = {
+                        'color': "rgb values from 0 ~ 255",
                         'period': "length of blinking period (in millisecs)",
                         'repeat': "if x > 0 -> stop after blinking x times",
                           'mode': "0-> ON, 1-> blinking, 2-> blinking asynchronously",
                            'ack': "parameter to acknowledge an alert / blinking pattern",
                           'json': "0 -> status response in HTML, 1 -> status response in Json",
-                          'info': "information about the alert"}
+                          'info': "information about the alert",
+                          'speak': "let the Raspberry Pi speak on alert (japanese only)"
+                          }
         self.logList = []
         self.brightness = self.getBrightnessSetting()
         self.setupPWM()
@@ -131,15 +140,26 @@ class LEDController:
                         except ValueError:
                             self.statusDict[key] = value
             self.checkBoundries()
+
+            self.speakIfNecessary()
+
             clonedDict = dict(self.statusDict)
             clonedDict['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.logList.insert(0, clonedDict)
+
+            # delete last items from list if list contains more then 500 entries
             if len(self.logList) > 500:
-                self.logList.pop()  #delete last item from list
+                self.logList.pop()
+
             self.resetUpdateParaMode1()
             self.resetUpdateParaMode2()
             if not self.noScript:
                 self.alarmScriptController.executeAlarmScript()
+
+    def speakIfNecessary(self):
+        speakMsg = urllib.unquote(str(self.statusDict['speak']))
+        if speakMsg is not "":
+            self.speakMsgController.createAndPlayAudio(speakMsg)
 
     def constantOn(self):
         if self.newStatusFlag:
@@ -213,6 +233,7 @@ class LEDController:
         self.statusDict['repeat'] = 0 # don't repeat unless explicitly told to do so
         self.statusDict['json'] = 0
         self.statusDict['info'] = ""
+        self.statusDict['speak'] = ""
 
     def resetLEDs(self):
         for pin in self.pinList:
@@ -371,12 +392,17 @@ class LEDController:
             if not flag and ent['ack'] == 0:
                 ent['ack'] = 1
                 flag = True
+
             if flag and ent['ack'] == 0:
                 self.newStatusFlag = True;
+
                 # here we loop through all the subentries of the alarm we need to load back into the
                 # self.statusDict
                 for key in self.listOfKeys:
                     self.statusDict[key] = ent[key]
+
+                self.speakIfNecessary()
+
                 # after we loaded the values back into the status dict
                 # we reset the update parameters
                 self.resetUpdateParaMode1()
@@ -547,5 +573,3 @@ while True:
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
 
-# TODO:
-# - 

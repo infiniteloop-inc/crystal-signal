@@ -15,6 +15,7 @@ define('LABEL_ASYNCH_FLASHING', '非同期点滅');
 define('LABEL_SEND', '送信');
 define('LABEL_STATUS_RESPONSE', 'ステータスレスポンス');
 define('LABEL_INFO_TEXT', '備考');
+define('LABEL_SPEAK_TEXT', '音声メッセージ');
 define('LABEL_ALERT_STRING', 'アラート実行コマンド');
 
 // log.php labels
