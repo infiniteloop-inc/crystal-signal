@@ -38,7 +38,7 @@ class LEDController:
         self.pi1 = pigpio.pi('localhost', 8888)
         self.buttonController = ButtonController()
         self.alarmScriptController = AlarmScriptController()
-        self.speakMsgController = SpeakMessageController("/var/lib/crystal-signal/soundFiles/speakMsg.wav")
+        self.speakMsgController = SpeakMessageController("/var/lib/crystal-signal/sounds/speakMsg.wav")
         self.pinList = [14, 15, 18]
         self.pi1.set_mode(4, pigpio.INPUT)
         self.pi1.set_pull_up_down(4, pigpio.PUD_OFF)

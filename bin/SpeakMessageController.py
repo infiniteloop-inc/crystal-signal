@@ -40,9 +40,3 @@ class SpeakMessageController:
         thread.start()
         return thread
 
-# - - - - - - - - - - - - - - - - 
-# - - - - - TEST AREA - - - - - -
-# - - - - - - - - - - - - - - - -
-#speakMessageController = SpeakMessageController();
-#speakMessageController.createAndPlayAudio("みあああああう");
-
