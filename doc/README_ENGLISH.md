@@ -137,3 +137,18 @@ Each log message contains information about
 ![](img/log_en.png)
 
 The log gets cleared on restart.
+
+## License
+
+### Crystal Signal Pi Middleware
+
+This work is licensed under the [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause).
+
+Copyright (c) 2016-2017  Infiniteloop Co.,Ltd
+
+### HTS Voice "Mei"
+
+This work is licensed under the [Creative Commons Attribution 3.0 license](https://creativecommons.org/licenses/by/3.0/legalcode).
+
+Copyright (c) 2009-2015  Nagoya Institute of Technology
+                         Department of Computer Science
