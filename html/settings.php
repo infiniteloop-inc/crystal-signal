@@ -206,6 +206,21 @@
                             </div>
                             </br>
                             </br>
+                            <div class="boxLeft"> 
+                                <span class="DropDownSpan"><?php echo LABEL_VOICE_SETTING;?></span>
+                                <div id="dropdown7" style="float: right">
+                                    <div class="dropdown">
+                                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">
+                                            <?php echo LABEL_LOADING;?>
+                                        <span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="#"></a></li>'
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            </br>
+                            </br>
                             </br>
                             </br>
                             </br>
@@ -227,7 +242,8 @@
                     $("#dropdown4").html(parsedData[3]); 
                     $("#dropdown5").html(parsedData[4]); 
                     $("#dropdown6").html(parsedData[5]); 
-                    $("#BSlider").html(parsedData[6]);
+                    $("#dropdown7").html(parsedData[6]); 
+                    $("#BSlider").html(parsedData[7]);
                     // reinit 
                     var sldrBrightness = $('#sldrBrightness').slider({
                         formatter: function(value) {
@@ -289,6 +305,14 @@
                     });
                     window.setTimeout(reloadCurrentPage, 500);
                 });
+                $(this).on("click","#dropdown7 a", function(e){ 
+                    tmpText = $(this).text();
+                    $("#dropdown7").find('button[name=dropDown1]').text(tmpText);
+                    $("#dropdown7").find('button[name=dropDown1]').append('<span class="caret"></span>')
+                    $.get('ctrl/controller.py?settingupsettings=1&voice=' + tmpText, function(data, status){
+                    });
+                });
+
                 // SLIDERS
                 var sldrBrightness = $('#sldrBrightness').slider({
                     formatter: function(value) {

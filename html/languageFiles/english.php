@@ -34,6 +34,7 @@ define('LABEL_LONG_BUTTON_PRESS', 'Long button press');
 define('LABEL_BRIGHTNESS', 'Overall brightness');
 define('LABEL_EXECUTED_AFTER_ALERT', 'Executed after each alert');
 define('LABEL_LANGUAGE_SETTING', 'Language');
+define('LABEL_VOICE_SETTING', 'Voice type');
 
 // status.php labels
 ?>

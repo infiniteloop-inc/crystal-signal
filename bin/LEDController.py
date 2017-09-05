@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+import sys  
 
-import sys
 import math
 import time
 import json
@@ -11,8 +11,7 @@ import random
 import datetime
 import threading
 import SocketServer
-from os import listdir
-from os.path import isfile, join, splitext
+import os
 from ButtonController import ButtonController
 from AlarmScriptController import AlarmScriptController
 from SpeakMessageController import SpeakMessageController 
@@ -159,7 +158,7 @@ class LEDController:
     def speakIfNecessary(self):
         speakMsg = urllib.unquote(str(self.statusDict['speak']))
         if speakMsg is not "":
-            self.speakMsgController.createAndPlayAudio(speakMsg)
+            self.speakMsgController.createAndPlayAudio(speakMsg, self.getVoiceSetting())
 
     def constantOn(self):
         if self.newStatusFlag:
@@ -338,6 +337,7 @@ class LEDController:
         scriptFileNames = self.getScriptNames()
         scriptFileNames.append("---")
         settings = self.getScriptSettings()
+
         # Here we check whether or not all the loaded settings entries
         # are either the name of an existing script or "---"
         # make the entry "---" if this is not the case
@@ -360,11 +360,12 @@ class LEDController:
             html += '''     </ul>
                         </div>'''
             htmlList.append(html)
+
         # dropdown nr. 6 is different from the other 5 dropdowns.
         # It's not about scripts but about languages, that's why it's html
         # are set seperatly
-        currentLanguage = self.getLanguageSetting()
         availableLanguages = self.getAvailableLanguages()
+        currentLanguage = self.getLanguageSetting()
         html =  ''' <div class="dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">'''
         html +=         urllib.unquote(currentLanguage) + '''<span class="caret"></span></button>
@@ -375,6 +376,30 @@ class LEDController:
         html += '''     </ul>
                     </div>'''
         htmlList.append(html)
+
+        # append the voice setting (dropdown nr. 7)
+        currentVoice = self.getVoiceSetting()
+        availableVoices = self.speakMsgController.getVoiceDropDownNames()
+
+        japFemMal = {'m' : "男性: ", 'w' : "女性: "}
+        engFemMal = {'m' : "Male: ", 'w' : "Female: "}
+        femMal = {}
+        if currentLanguage == "english":
+            femMal = engFemMal
+        else:
+            femMal = japFemMal
+
+        html =  ''' <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">'''
+        html +=         urllib.unquote(currentVoice) + '''<span class="caret"></span></button>
+                        <ul class="dropdown-menu">'''
+        for entry in availableVoices:
+            html +=     '<li><a href="#">' + femMal[entry[1]]  + entry[0] + '</a></li>'
+
+        html += '''     </ul>
+                    </div>'''
+        htmlList.append(html)
+
         # also add the slider HTML
         html = '''<input id="sldrBrightness" data-slider-id='SliderBrightness' type="text" data-slider-min="40" data-slider-max="100" data-slider-step="1" data-slider-value="'''
         html += str(round(self.getBrightnessSetting()*60/255.0 + 40)) + '"/>'
@@ -449,7 +474,7 @@ class LEDController:
 
     def getScriptNames(self):
         path = "/var/lib/crystal-signal/scripts"
-        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
         return onlyfiles
 
     def setScriptSettings(self):
@@ -473,7 +498,7 @@ class LEDController:
 
     def getScriptSettings(self):
         path = '/var/lib/crystal-signal/ScriptSettings.json'
-        if not isfile(path):
+        if not os.path.isfile(path):
             ScriptSettingsInit = {'dropdown1': "---",
                                   'dropdown2': "---",
                                   'dropdown3': "---",
@@ -486,9 +511,10 @@ class LEDController:
 
     def getSettings(self):
         path = "/var/lib/crystal-signal/Settings.json"
-        if not isfile(path):
+        if not os.path.isfile(path):
             SettingsInit = {'brightness': 60,
-                            'language': "none"}
+                            'language': "none",
+                            'voice': "mei_happy"}
             with open(path, 'w+') as outfile:
                     json.dump(SettingsInit, outfile)
         with open(path) as data:
@@ -497,6 +523,10 @@ class LEDController:
                 # we need to add the new language settings dict entry
                 # for all users with old settings.json files.
                 settingsData['language'] = 'none'
+            if not 'voice' in settingsData:
+                # we need to add the new voice settings dict entry
+                # for all users with old settings.json files.
+                settingsData['voice'] = 'Mei (happy)'
             return settingsData
 
     def getBrightnessSetting(self):
@@ -516,16 +546,20 @@ class LEDController:
 
     def getAvailableLanguages(self):
         path = "/var/www/html/languageFiles"
-        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
         fileNamesWithoutEndings = []
         for ent in onlyfiles:
-            fileNamesWithoutEndings.append(splitext(ent)[0])
+            fileNamesWithoutEndings.append(os.path.splitext(ent)[0])
         return fileNamesWithoutEndings
+
+    def getVoiceSetting(self):
+        tmp = self.getSettings()
+        return tmp['voice']
 
     def setSettings(self):
         path = "/var/lib/crystal-signal/Settings.json"
         # sets one Settings entry (parameter-value pair in self.argList)
-        keyList = ['brightness', 'language']
+        keyList = ['brightness', 'language', 'voice']
         # settings contains the current Settings.json data
         settings = self.getSettings()
         for arg in self.argList:
@@ -538,9 +572,22 @@ class LEDController:
                             settings[ent] = int(value)
                         except ValueError:
                             # the value must be a string then
-                            settings[ent] = value
+                            if ent == 'voice':
+                                # throw away the "woman:" part in front of the entry
+                                _, val = value.split(':')
+                                # decode '%20' to ' ' and throw away leading spaces
+                                settings[ent] = urllib.unquote(val).lstrip(' ')
+                            else:
+                                settings[ent] = value
         with open(path, 'w+') as outfile:
             json.dump(settings, outfile)
+
+# - - - - - - - - - - - - - - - - -
+# - SETTING UP SYS FOR UNICODE  - -
+# - - - - - - - - - - - - - - - - -
+# This is necessary to handle unicode characters in strings.
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 # - - - - - - - - - - - - - - - - -
 # SETTING UP SOCKET & CONTROLLER  -
@@ -572,4 +619,3 @@ while True:
 # - - - - - - - - - - - - - - - -
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
-

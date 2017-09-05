@@ -34,6 +34,7 @@ define('LABEL_LONG_BUTTON_PRESS', '長押し');
 define('LABEL_BRIGHTNESS', '明るさ設定');
 define('LABEL_EXECUTED_AFTER_ALERT', 'アラートが発生した後に実行');
 define('LABEL_LANGUAGE_SETTING', '言語設定');
+define('LABEL_VOICE_SETTING', '音声タイプ');
 
 // ctrl/index.php labels
 ?>
