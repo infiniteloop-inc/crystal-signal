@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-import sys  
 
+import sys  
 import math
 import time
 import json

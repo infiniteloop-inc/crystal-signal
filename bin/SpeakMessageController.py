@@ -11,7 +11,6 @@ import json
 # - -  SPEAK MESSAGE CONTROLLER - - -  
 # - - - - - - - - - - - - - - - - - - 
 class SpeakMessageController:
-
     def __init__(self, audioPath):
         self.audioFilePath = audioPath
         meiVoiceDirPath = "/var/lib/crystal-signal/voice/mei/"
