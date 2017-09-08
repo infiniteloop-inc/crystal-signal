@@ -59,6 +59,7 @@ TIMEDATECTL=/usr/bin/timedatectl
 SORT=/usr/bin/sort
 HEAD=/usr/bin/head
 OPENJTALK=/usr/bin/open_jtalk
+PHP=/usr/bin/php
 
 WORKDIR=/tmp
 DOCUMENTROOT=/var/www/html
@@ -120,7 +121,7 @@ function install_pigpiod
 function install_apache
 {
     apt_update
-    $APT install -y apache2 php5
+    $APT install -y apache2
 
     $SED -i -e '/.*#AddHandler cgi-script .cgi$/i \\tAddHandler cgi-script .py' /etc/apache2/mods-available/mime.conf
     $A2ENMOD cgi
@@ -138,6 +139,11 @@ EOF
 
 function install_crystalsignal
 {
+    if [ ! -x $PHP ]; then
+        apt_update
+        $APT install -y php5
+    fi
+
     if [ ! -x $RSYNC ]; then
         apt_update
         $APT install -y rsync
