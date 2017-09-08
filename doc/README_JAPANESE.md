@@ -17,7 +17,7 @@
 
 microSDカードに[Raspbian](https://www.raspberrypi.org/downloads/raspbian/)をインストールしてください。インストール方法は[公式のドキュメント](https://www.raspberrypi.org/documentation/installation/installing-images/README.md)を参照してください。
 
-*(2016-09-23-raspbian-jessie-liteにおいて動作を確認しています)*
+*(2016-09-23-raspbian-jessie-liteおよび2017-08-16-raspbian-stretch-liteにおいて動作を確認しています)*
 
 ### Crystal Signal Piミドルウェアのインストール
 

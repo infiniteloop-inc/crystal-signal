@@ -17,7 +17,7 @@ Your Raspberry Pi needs to run an operating system in order to run the Crystal S
 You can skip this step if you already have one in place. 
 
 Download [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and install it to the micro SD card following [these instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md).
-*(The Crystal Signal Pi middleware is successfully tested with 2016-09-23-raspbian-jessie-lite)*
+*(The Crystal Signal Pi middleware is successfully tested with 2016-09-23-raspbian-jessie-lite and 2017-08-16-raspbian-stretch-lite)*
 
 ### Get the Crystal Signal Pi middleware
 
