@@ -59,6 +59,7 @@ TIMEDATECTL=/usr/bin/timedatectl
 SORT=/usr/bin/sort
 HEAD=/usr/bin/head
 OPENJTALK=/usr/bin/open_jtalk
+ESPEAK=/usr/bin/espeak
 PHP=/usr/bin/php
 
 WORKDIR=/tmp
@@ -157,6 +158,11 @@ function install_crystalsignal
     if [ ! -x $OPENJTALK ]; then
         apt_update
         $APT install -y open-jtalk open-jtalk-mecab-naist-jdic hts-voice-nitech-jp-atr503-m001
+    fi
+
+    if [ ! -x $ESPEAK ]; then
+        apt_update
+        $APT install -y espeak
     fi
 
     RESTORE=0
