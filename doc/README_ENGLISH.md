@@ -32,7 +32,7 @@ The first line gets the installer script file. This script contains all the inst
 With the second command we execute the script, resulting in the installation of the Crystal Signal Pi middleware. 
 
 There is also the option to run a "fullinstall". This is a convenient option if you just want to use the Crystal Signal Pi without having to worry about anything at all.
-This will update your Raspbian OS, set the timezone (to the Asia/Tokio timezone. Which is probably not what you want. we need to change this). 
+This will update your Raspbian OS and set the timezone (to the Asia/Tokio timezone. Which is probably not what you want. We need to change this). 
 
 *Note that updating the OS takes quite a lot of time. In Some cases you will need to restart your Raspberry Pi after installation has finished.*
 
