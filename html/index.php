@@ -213,11 +213,9 @@
                     },
                     updateInfo: function(val){
                         this.info = val;
-                        this.send();
                     },
                     updateSpeak: function(val){
                         this.speak = val;
-                        this.send();
                     },
                     send: function(){
                         queryString = '?color=' + this.color[0] + ',' + this.color[1] + ',' + this.color[2] +

@@ -158,7 +158,8 @@ class LEDController:
     def speakIfNecessary(self):
         speakMsg = urllib.unquote(str(self.statusDict['speak']))
         if speakMsg is not "":
-            self.speakMsgController.createAndPlayAudio(speakMsg, self.getVoiceSetting())
+            language = self.getLanguageSetting()
+            self.speakMsgController.createAndPlayAudio(speakMsg, self.getVoiceSetting(language), language)
 
     def constantOn(self):
         if self.newStatusFlag:
@@ -378,11 +379,11 @@ class LEDController:
         htmlList.append(html)
 
         # append the voice setting (dropdown nr. 7)
-        currentVoice = self.getVoiceSetting()
-        availableVoices = self.speakMsgController.getVoiceDropDownNames()
+        currentVoice = self.getVoiceSetting(currentLanguage)
+        availableVoices = self.speakMsgController.getVoiceDropDownNames(currentLanguage)
 
-        japFemMal = {'m' : "男性: ", 'w' : "女性: "}
-        engFemMal = {'m' : "Male: ", 'w' : "Female: "}
+        japFemMal = {'m' : "男性: ", 'f' : "女性: "}
+        engFemMal = {'m' : "Male: ", 'f' : "Female: "}
         femMal = {}
         if currentLanguage == "english":
             femMal = engFemMal
@@ -523,10 +524,14 @@ class LEDController:
                 # we need to add the new language settings dict entry
                 # for all users with old settings.json files.
                 settingsData['language'] = 'none'
-            if not 'voice' in settingsData:
+            if not 'voice_japanese' in settingsData:
                 # we need to add the new voice settings dict entry
                 # for all users with old settings.json files.
-                settingsData['voice'] = 'Mei (happy)'
+                settingsData['voice_japanese'] = 'Mei (happy)'
+            if not 'voice_english' in settingsData:
+                # we need to add the new voice settings dict entry
+                # for all users with old settings.json files.
+                settingsData['voice_english'] = 'f4'
             return settingsData
 
     def getBrightnessSetting(self):
@@ -552,9 +557,9 @@ class LEDController:
             fileNamesWithoutEndings.append(os.path.splitext(ent)[0])
         return fileNamesWithoutEndings
 
-    def getVoiceSetting(self):
+    def getVoiceSetting(self, language):
         tmp = self.getSettings()
-        return tmp['voice']
+        return tmp['voice_' + language]
 
     def setSettings(self):
         path = "/var/lib/crystal-signal/Settings.json"
@@ -576,7 +581,7 @@ class LEDController:
                                 # throw away the "woman:" part in front of the entry
                                 _, val = value.split(':')
                                 # decode '%20' to ' ' and throw away leading spaces
-                                settings[ent] = urllib.unquote(val).lstrip(' ')
+                                settings[ent + '_' + self.getLanguageSetting()] = urllib.unquote(val).lstrip(' ')
                             else:
                                 settings[ent] = value
         with open(path, 'w+') as outfile:
