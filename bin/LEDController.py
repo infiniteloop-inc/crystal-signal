@@ -63,7 +63,7 @@ class LEDController:
                            'ack': "parameter to acknowledge an alert / blinking pattern",
                           'json': "0 -> status response in HTML, 1 -> status response in Json",
                           'info': "information about the alert",
-                          'speak': "let the Raspberry Pi speak on alert (japanese only)"
+                          'speak': "let the Raspberry Pi speak on alert"
                           }
         self.logList = []
         self.brightness = self.getBrightnessSetting()
