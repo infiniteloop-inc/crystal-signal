@@ -79,13 +79,14 @@ Crystal Signal Piは、curlコマンド等からAPIを直接叩くことで、We
 | ack | アラートの発生、停止を指定します。デフォルト値は0で、アラートが発生(LEDが点灯)します。ack=1を指定すると、その他のパラメータにかかわらず、LEDが消灯します。 |
 | json | json=1を指定すると、現在のCrystal Signal Piの状態をJSONフォーマットで返します。この際、他のパラメータはすべて無視されます。シェルスクリプト等から副作用なしに、現在の状態を取得するためのパラメータです。 |
 | noscript | 1を指定すると、アラート発生時に設定されているスクリプトを実行しません。(ベータ版) |
+| speak | アラート発生時にクリスタルシグナル・Piがしゃべるメッセージ。 |
 | info | 任意のメッセージを記述できます。 |
 
 (curlからLEDを点滅させる例)
 ```
 $ curl 'http://172.16.1.10/ctrl/?color=10,200,30&mode=1&repeat=0&period=500'
 ```
-Web UIのQueryStringの欄には、現在のスライダーの状態をAPI経由で再現するためのURLとクエリ文字列が表示されています。スライダーを動かしてリアルタイムに動作を確認しながら、直感的にクエリ文字列を作ることができます。
+Web UIの「アラート実行コマンド」の欄には、現在のスライダーの状態をAPI経由で再現するためのURLとクエリ文字列が表示されています。スライダーを動かしてリアルタイムに動作を確認しながら、直感的にクエリ文字列を作ることができます。
 
 ![](img/query.png)
 
@@ -110,6 +111,10 @@ poweroff
 **注意: サンプルで用意されているスクリプトは、ミドルウェアのアップデート時に上書きされます。これらのスクリプトをカスタマイズしたい場合は直接編集せず、別名でコピーした上でご利用ください。**
 
 **注意: アラートの発生時に実行するスクリプト中でさらにアラートを発生させると、さらにスクリプトが実行されてしまいます。アラートが無限ループしないよう、スクリプトの実装には気をつけてください。**
+
+## 音声メッセージの使い方
+
+speakパラメータを利用することでアラートごとに任意の音声メッセージの設定ができます。クリスタルシグナル・Piの言語設定が英語の場合にはspeakパラメータの文字列が英語として解釈され、言語設定が日本語となっている場合には日本語として処理されます。
 
 ## ログ機能の使い方
 
@@ -143,3 +148,9 @@ This work is licensed under the [Creative Commons Attribution 3.0 license](https
 
 Copyright (c) 2009-2015  Nagoya Institute of Technology
                          Department of Computer Science
+
+### espeak
+
+This work is licensed unter version 3 of the GNU General Public License.
+
+Copyright (c) 2007  [Free Software Foundation, Inc.](http://fsf.org/)
