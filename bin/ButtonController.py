@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
 import os
 import threading
 import time
@@ -19,6 +22,7 @@ class ButtonController:
         self.pressEndTime = 0;
         self.pressDuration = 0
         self.ackStatus = False;
+
     def update(self, buttonStatus, ackStatus):
         self.ackStatus = ackStatus
         if buttonStatus and not self.helperFlag1:
@@ -45,9 +49,11 @@ class ButtonController:
         elif buttonStatus and self.buttonPressedFlag:
             # Reset the buttonReleasedCounter if the buttonStatus gets high again very fast
             self.buttonReleasedCounter = 0;
+
     def getTimeStamp(self):
         # returns the current TimeStamp in millisecs
         return int(time.time()*1000)
+
     def longPress(self):
         path = "/var/lib/crystal-signal/scripts/"
         settings = self.getButtonSettings()
@@ -62,7 +68,6 @@ class ButtonController:
                     subprocess.Popen(txt)
                 except:
                     print 'cannot open', scriptName
-
         else:
             # Write here code that will be executed When the Button is pressed long & the current AckStatus is False 
             scriptName = settings['dropdown4']
@@ -87,7 +92,6 @@ class ButtonController:
                     subprocess.Popen(txt)
                 except:
                     print 'cannot open', scriptName
-
         else:
             # Write here code that will be executed When the Button is pressed short & the current AckStatus is False 
             scriptName = settings['dropdown2']
@@ -97,6 +101,7 @@ class ButtonController:
                     subprocess.Popen(txt)
                 except:
                     print 'cannot open', scriptName
+
     def getButtonSettings(self):
         path = "/var/lib/crystal-signal/ScriptSettings.json"
         if not isfile(path):
@@ -109,6 +114,7 @@ class ButtonController:
                 json.dump(buttonSettingsInit, outfile)
         with open(path) as data:
             return json.load(data)
+
     def getScriptNames(self):
         path = "/var/lib/crystal-signal/scripts"
         onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
@@ -118,4 +124,3 @@ class ButtonController:
 # - - - - - - - - - - - - - - - - 
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
-

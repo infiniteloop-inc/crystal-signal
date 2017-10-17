@@ -15,6 +15,7 @@ define('LABEL_ASYNCH_FLASHING', '非同期点滅');
 define('LABEL_SEND', '送信');
 define('LABEL_STATUS_RESPONSE', 'ステータスレスポンス');
 define('LABEL_INFO_TEXT', '備考');
+define('LABEL_SPEAK_TEXT', '音声メッセージ');
 define('LABEL_ALERT_STRING', 'アラート実行コマンド');
 
 // log.php labels
@@ -33,6 +34,7 @@ define('LABEL_LONG_BUTTON_PRESS', '長押し');
 define('LABEL_BRIGHTNESS', '明るさ設定');
 define('LABEL_EXECUTED_AFTER_ALERT', 'アラートが発生した後に実行');
 define('LABEL_LANGUAGE_SETTING', '言語設定');
+define('LABEL_VOICE_SETTING', '音声タイプ');
 
 // ctrl/index.php labels
 ?>

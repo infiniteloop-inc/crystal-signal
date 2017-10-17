@@ -58,6 +58,9 @@ RASPICONFIG=/usr/bin/raspi-config
 TIMEDATECTL=/usr/bin/timedatectl
 SORT=/usr/bin/sort
 HEAD=/usr/bin/head
+OPENJTALK=/usr/bin/open_jtalk
+ESPEAK=/usr/bin/espeak
+PHP=/usr/bin/php
 
 WORKDIR=/tmp
 DOCUMENTROOT=/var/www/html
@@ -66,6 +69,7 @@ CGIDIR=${DOCUMENTROOT}/ctrl
 CSPIDIR=/var/lib/crystal-signal
 SCRIPTDIR=${CSPIDIR}/scripts
 SOUNDSDIR=${CSPIDIR}/sounds
+VOICEDIR=${CSPIDIR}/voice
 SCRIPTCONFFILE=${CSPIDIR}/ScriptSettings.json
 GENERALCONFFILE=${CSPIDIR}/Settings.json
 
@@ -118,7 +122,7 @@ function install_pigpiod
 function install_apache
 {
     apt_update
-    $APT install -y apache2 php5
+    $APT install -y apache2
 
     $SED -i -e '/.*#AddHandler cgi-script .cgi$/i \\tAddHandler cgi-script .py' /etc/apache2/mods-available/mime.conf
     $A2ENMOD cgi
@@ -136,6 +140,11 @@ EOF
 
 function install_crystalsignal
 {
+    if [ ! -x $PHP ]; then
+        apt_update
+        $APT install -y php5
+    fi
+
     if [ ! -x $RSYNC ]; then
         apt_update
         $APT install -y rsync
@@ -144,6 +153,16 @@ function install_crystalsignal
     if [ ! -x $JQ ]; then
         apt_update
         $APT install -y jq
+    fi
+
+    if [ ! -x $OPENJTALK ]; then
+        apt_update
+        $APT install -y open-jtalk open-jtalk-mecab-naist-jdic hts-voice-nitech-jp-atr503-m001
+    fi
+
+    if [ ! -x $ESPEAK ]; then
+        apt_update
+        $APT install -y espeak
     fi
 
     RESTORE=0
@@ -180,9 +199,13 @@ function install_crystalsignal
     if [ ! -d "${SCRIPTDIR}" ]; then
         $MKDIR ${SCRIPTDIR}
     fi
-    
+
     if [ ! -d "${SOUNDSDIR}" ]; then
         $MKDIR ${SOUNDSDIR}
+    fi
+
+    if [ ! -d "${VOICEDIR}" ]; then
+        $MKDIR ${VOICEDIR}
     fi
 
     # install version file
@@ -194,6 +217,9 @@ function install_crystalsignal
 
     # install sample sound files
     $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/sounds/ $SOUNDSDIR
+
+    # install HTS Voice
+    $RSYNC -avz ${WORKDIR}/crystal-signal-${SERVERVER}/voice/ $VOICEDIR
 
     # install default config file
     if [ ! -f $GENERALCONFFILE ]; then

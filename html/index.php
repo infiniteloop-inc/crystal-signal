@@ -136,6 +136,11 @@
                                     <input type="text" class="form-control" id="infoText"> 
                                 </div>
                                 <div class="form-group">
+                                    <label for="usr"><?php echo LABEL_SPEAK_TEXT?></label>
+                                    <input type="text" class="form-control" id="speakText"> 
+                                </div>
+
+                                <div class="form-group">
                                     <label for="usr"><?php echo LABEL_ALERT_STRING?></label>
                                     <input type="text" class="form-control" id="showQueryString"> 
                                 </div>
@@ -173,6 +178,7 @@
                     repeat: 0,
                     json: 0,
                     info: "",
+                    speak: "",
                     updateMode: function(val){
                         this.mode = val
                         this.send();
@@ -207,7 +213,9 @@
                     },
                     updateInfo: function(val){
                         this.info = val;
-                        this.send();
+                    },
+                    updateSpeak: function(val){
+                        this.speak = val;
                     },
                     send: function(){
                         queryString = '?color=' + this.color[0] + ',' + this.color[1] + ',' + this.color[2] +
@@ -215,6 +223,9 @@
                             '&json=' + this.json
                             if (this.info !== ""){
                                 queryString += '&info=' + this.info;
+                            }
+                            if (this.speak !== ""){
+                                queryString += '&speak=' + this.speak;
                             }
                         $("#showQueryString").val(window.location.href + "ctrl/" + queryString);
                         $.get("ctrl/simpleController.py" + queryString, function(data, status){
@@ -225,6 +236,11 @@
 
                 // Text field
                 $("#infoText").change(infoTextChange);
+                $("#speakText").change(speakTextChange);
+
+                function speakTextChange(){
+                    SenderObj.updateSpeak($("#speakText").val());
+                }
 
                 function infoTextChange(){
                     SenderObj.updateInfo($("#infoText").val());

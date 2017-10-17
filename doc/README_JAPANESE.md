@@ -17,7 +17,7 @@
 
 microSDカードに[Raspbian](https://www.raspberrypi.org/downloads/raspbian/)をインストールしてください。インストール方法は[公式のドキュメント](https://www.raspberrypi.org/documentation/installation/installing-images/README.md)を参照してください。
 
-*(2016-09-23-raspbian-jessie-liteにおいて動作を確認しています)*
+*(2016-09-23-raspbian-jessie-liteおよび2017-08-16-raspbian-stretch-liteにおいて動作を確認しています)*
 
 ### Crystal Signal Piミドルウェアのインストール
 
@@ -128,3 +128,18 @@ Crystal Signal Piは、発生したアラートのうち直近500件を記憶し
 ![](img/log.png)
 
 なお、ログはミドルウェアの再起動でクリアされます。恒久的に記録されるわけではないことにご注意ください。
+
+## ライセンス
+
+### Crystal Signal Pi Middleware
+
+This work is licensed under the [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause).
+
+Copyright (c) 2016-2017  Infiniteloop Co.,Ltd
+
+### HTS Voice "Mei"
+
+This work is licensed under the [Creative Commons Attribution 3.0 license](https://creativecommons.org/licenses/by/3.0/legalcode).
+
+Copyright (c) 2009-2015  Nagoya Institute of Technology
+                         Department of Computer Science

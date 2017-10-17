@@ -1,6 +1,7 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 
-import sys
+import sys  
 import math
 import time
 import json
@@ -10,10 +11,10 @@ import random
 import datetime
 import threading
 import SocketServer
-from os import listdir
-from os.path import isfile, join, splitext
+import os
 from ButtonController import ButtonController
 from AlarmScriptController import AlarmScriptController
+from SpeakMessageController import SpeakMessageController 
 
 # - - - - - - - - - - - - - - - -
 # - - - - SOCKET CLASSES  - - - -
@@ -36,27 +37,34 @@ class LEDController:
         self.pi1 = pigpio.pi('localhost', 8888)
         self.buttonController = ButtonController()
         self.alarmScriptController = AlarmScriptController()
+        self.speakMsgController = SpeakMessageController("/var/lib/crystal-signal/sounds/speakMsg.wav")
         self.pinList = [14, 15, 18]
         self.pi1.set_mode(4, pigpio.INPUT)
         self.pi1.set_pull_up_down(4, pigpio.PUD_OFF)
         self.queryString = ""
-        self.statusDict = {'color': [0,0,0],    # 0 ~ 255 rgb
+        self.statusDict = {
+                       'color': [0,0,0],    # 0 ~ 255 rgb
                         'mode': 0,          # 0 -> constant on, 1 -> blinking, 2: asynchron blinking
                       'period': 1000,       # in milliseconds
                       'repeat': 0,          # if x > 0 -> stop after blinking x times
                          'ack': 1,          # was the current alarm acknowledged? 0 -> NO, 1 -> YES
                         'json': 0,          # 0 -> status response in HTML, 1 -> status response in Json
                         'info': "",         # info
+                        'speak': "",        # speak Message (japanese only) 
                         'remote_addr': 0,   # Where was the request sent from?
-                        'remote_host': 0}   # What is the name of the request sender?
-        self.listOfKeys = ['color', 'period', 'repeat', 'mode', 'ack', 'json', 'info']
-        self.explanationDict = {'color': "rgb values from 0 ~ 255",
+                        'remote_host': 0    # What is the name of the request sender?
+                        }   
+        self.listOfKeys = ['color', 'period', 'repeat', 'mode', 'ack', 'json', 'info', 'speak']
+        self.explanationDict = {
+                        'color': "rgb values from 0 ~ 255",
                         'period': "length of blinking period (in millisecs)",
                         'repeat': "if x > 0 -> stop after blinking x times",
                           'mode': "0-> ON, 1-> blinking, 2-> blinking asynchronously",
                            'ack': "parameter to acknowledge an alert / blinking pattern",
                           'json': "0 -> status response in HTML, 1 -> status response in Json",
-                          'info': "information about the alert"}
+                          'info': "information about the alert",
+                          'speak': "let the Raspberry Pi speak on alert (japanese only)"
+                          }
         self.logList = []
         self.brightness = self.getBrightnessSetting()
         self.setupPWM()
@@ -131,15 +139,27 @@ class LEDController:
                         except ValueError:
                             self.statusDict[key] = value
             self.checkBoundries()
+
+            self.speakIfNecessary()
+
             clonedDict = dict(self.statusDict)
             clonedDict['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.logList.insert(0, clonedDict)
+
+            # delete last items from list if list contains more then 500 entries
             if len(self.logList) > 500:
-                self.logList.pop()  #delete last item from list
+                self.logList.pop()
+
             self.resetUpdateParaMode1()
             self.resetUpdateParaMode2()
             if not self.noScript:
                 self.alarmScriptController.executeAlarmScript()
+
+    def speakIfNecessary(self):
+        speakMsg = urllib.unquote(str(self.statusDict['speak']))
+        if speakMsg is not "":
+            language = self.getLanguageSetting()
+            self.speakMsgController.createAndPlayAudio(speakMsg, self.getVoiceSetting(language), language)
 
     def constantOn(self):
         if self.newStatusFlag:
@@ -213,6 +233,7 @@ class LEDController:
         self.statusDict['repeat'] = 0 # don't repeat unless explicitly told to do so
         self.statusDict['json'] = 0
         self.statusDict['info'] = ""
+        self.statusDict['speak'] = ""
 
     def resetLEDs(self):
         for pin in self.pinList:
@@ -317,6 +338,7 @@ class LEDController:
         scriptFileNames = self.getScriptNames()
         scriptFileNames.append("---")
         settings = self.getScriptSettings()
+
         # Here we check whether or not all the loaded settings entries
         # are either the name of an existing script or "---"
         # make the entry "---" if this is not the case
@@ -339,11 +361,12 @@ class LEDController:
             html += '''     </ul>
                         </div>'''
             htmlList.append(html)
+
         # dropdown nr. 6 is different from the other 5 dropdowns.
         # It's not about scripts but about languages, that's why it's html
         # are set seperatly
-        currentLanguage = self.getLanguageSetting()
         availableLanguages = self.getAvailableLanguages()
+        currentLanguage = self.getLanguageSetting()
         html =  ''' <div class="dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">'''
         html +=         urllib.unquote(currentLanguage) + '''<span class="caret"></span></button>
@@ -354,6 +377,30 @@ class LEDController:
         html += '''     </ul>
                     </div>'''
         htmlList.append(html)
+
+        # append the voice setting (dropdown nr. 7)
+        currentVoice = self.getVoiceSetting(currentLanguage)
+        availableVoices = self.speakMsgController.getVoiceDropDownNames(currentLanguage)
+
+        japFemMal = {'m' : "男性: ", 'f' : "女性: "}
+        engFemMal = {'m' : "Male: ", 'f' : "Female: "}
+        femMal = {}
+        if currentLanguage == "english":
+            femMal = engFemMal
+        else:
+            femMal = japFemMal
+
+        html =  ''' <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" name="dropDown1">'''
+        html +=         urllib.unquote(currentVoice) + '''<span class="caret"></span></button>
+                        <ul class="dropdown-menu">'''
+        for entry in availableVoices:
+            html +=     '<li><a href="#">' + femMal[entry[1]]  + entry[0] + '</a></li>'
+
+        html += '''     </ul>
+                    </div>'''
+        htmlList.append(html)
+
         # also add the slider HTML
         html = '''<input id="sldrBrightness" data-slider-id='SliderBrightness' type="text" data-slider-min="40" data-slider-max="100" data-slider-step="1" data-slider-value="'''
         html += str(round(self.getBrightnessSetting()*60/255.0 + 40)) + '"/>'
@@ -371,12 +418,17 @@ class LEDController:
             if not flag and ent['ack'] == 0:
                 ent['ack'] = 1
                 flag = True
+
             if flag and ent['ack'] == 0:
                 self.newStatusFlag = True;
+
                 # here we loop through all the subentries of the alarm we need to load back into the
                 # self.statusDict
                 for key in self.listOfKeys:
                     self.statusDict[key] = ent[key]
+
+                self.speakIfNecessary()
+
                 # after we loaded the values back into the status dict
                 # we reset the update parameters
                 self.resetUpdateParaMode1()
@@ -423,7 +475,7 @@ class LEDController:
 
     def getScriptNames(self):
         path = "/var/lib/crystal-signal/scripts"
-        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
         return onlyfiles
 
     def setScriptSettings(self):
@@ -447,7 +499,7 @@ class LEDController:
 
     def getScriptSettings(self):
         path = '/var/lib/crystal-signal/ScriptSettings.json'
-        if not isfile(path):
+        if not os.path.isfile(path):
             ScriptSettingsInit = {'dropdown1': "---",
                                   'dropdown2': "---",
                                   'dropdown3': "---",
@@ -460,9 +512,10 @@ class LEDController:
 
     def getSettings(self):
         path = "/var/lib/crystal-signal/Settings.json"
-        if not isfile(path):
+        if not os.path.isfile(path):
             SettingsInit = {'brightness': 60,
-                            'language': "none"}
+                            'language': "none",
+                            'voice': "mei_happy"}
             with open(path, 'w+') as outfile:
                     json.dump(SettingsInit, outfile)
         with open(path) as data:
@@ -471,6 +524,14 @@ class LEDController:
                 # we need to add the new language settings dict entry
                 # for all users with old settings.json files.
                 settingsData['language'] = 'none'
+            if not 'voice_japanese' in settingsData:
+                # we need to add the new voice settings dict entry
+                # for all users with old settings.json files.
+                settingsData['voice_japanese'] = 'Mei (happy)'
+            if not 'voice_english' in settingsData:
+                # we need to add the new voice settings dict entry
+                # for all users with old settings.json files.
+                settingsData['voice_english'] = 'f4'
             return settingsData
 
     def getBrightnessSetting(self):
@@ -490,16 +551,20 @@ class LEDController:
 
     def getAvailableLanguages(self):
         path = "/var/www/html/languageFiles"
-        onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+        onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
         fileNamesWithoutEndings = []
         for ent in onlyfiles:
-            fileNamesWithoutEndings.append(splitext(ent)[0])
+            fileNamesWithoutEndings.append(os.path.splitext(ent)[0])
         return fileNamesWithoutEndings
+
+    def getVoiceSetting(self, language):
+        tmp = self.getSettings()
+        return tmp['voice_' + language]
 
     def setSettings(self):
         path = "/var/lib/crystal-signal/Settings.json"
         # sets one Settings entry (parameter-value pair in self.argList)
-        keyList = ['brightness', 'language']
+        keyList = ['brightness', 'language', 'voice']
         # settings contains the current Settings.json data
         settings = self.getSettings()
         for arg in self.argList:
@@ -512,9 +577,22 @@ class LEDController:
                             settings[ent] = int(value)
                         except ValueError:
                             # the value must be a string then
-                            settings[ent] = value
+                            if ent == 'voice':
+                                # throw away the "woman:" part in front of the entry
+                                _, val = value.split(':')
+                                # decode '%20' to ' ' and throw away leading spaces
+                                settings[ent + '_' + self.getLanguageSetting()] = urllib.unquote(val).lstrip(' ')
+                            else:
+                                settings[ent] = value
         with open(path, 'w+') as outfile:
             json.dump(settings, outfile)
+
+# - - - - - - - - - - - - - - - - -
+# - SETTING UP SYS FOR UNICODE  - -
+# - - - - - - - - - - - - - - - - -
+# This is necessary to handle unicode characters in strings.
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 # - - - - - - - - - - - - - - - - -
 # SETTING UP SOCKET & CONTROLLER  -
@@ -546,6 +624,3 @@ while True:
 # - - - - - - - - - - - - - - - -
 # - - - - - - MEMO  - - - - - - -
 # - - - - - - - - - - - - - - - -
-
-# TODO:
-# - 

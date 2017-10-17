@@ -17,7 +17,7 @@ Your Raspberry Pi needs to run an operating system in order to run the Crystal S
 You can skip this step if you already have one in place. 
 
 Download [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and install it to the micro SD card following [these instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md).
-*(The Crystal Signal Pi middleware is successfully tested with 2016-09-23-raspbian-jessie-lite)*
+*(The Crystal Signal Pi middleware is successfully tested with 2016-09-23-raspbian-jessie-lite and 2017-08-16-raspbian-stretch-lite)*
 
 ### Get the Crystal Signal Pi middleware
 
@@ -32,7 +32,7 @@ The first line gets the installer script file. This script contains all the inst
 With the second command we execute the script, resulting in the installation of the Crystal Signal Pi middleware. 
 
 There is also the option to run a "fullinstall". This is a convenient option if you just want to use the Crystal Signal Pi without having to worry about anything at all.
-This will update your Raspbian OS, set the timezone (to the Asia/Tokio timezone. Which is probably not what you want. we need to change this). 
+This will update your Raspbian OS and set the timezone (to the Asia/Tokio timezone. Which is probably not what you want. We need to change this). 
 
 *Note that updating the OS takes quite a lot of time. In Some cases you will need to restart your Raspberry Pi after installation has finished.*
 
@@ -137,3 +137,18 @@ Each log message contains information about
 ![](img/log_en.png)
 
 The log gets cleared on restart.
+
+## License
+
+### Crystal Signal Pi Middleware
+
+This work is licensed under the [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause).
+
+Copyright (c) 2016-2017  Infiniteloop Co.,Ltd
+
+### HTS Voice "Mei"
+
+This work is licensed under the [Creative Commons Attribution 3.0 license](https://creativecommons.org/licenses/by/3.0/legalcode).
+
+Copyright (c) 2009-2015  Nagoya Institute of Technology
+                         Department of Computer Science

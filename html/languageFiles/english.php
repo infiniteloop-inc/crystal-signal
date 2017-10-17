@@ -15,6 +15,7 @@ define('LABEL_ASYNCH_FLASHING', 'Asynch. Flash');
 define('LABEL_SEND', 'Send');
 define('LABEL_STATUS_RESPONSE', 'Status Response');
 define('LABEL_INFO_TEXT', 'Alert Info');
+define('LABEL_SPEAK_TEXT', 'Speak Message');
 define('LABEL_ALERT_STRING', 'Alert Execution String');
 
 // log.php labels
@@ -33,6 +34,7 @@ define('LABEL_LONG_BUTTON_PRESS', 'Long button press');
 define('LABEL_BRIGHTNESS', 'Overall brightness');
 define('LABEL_EXECUTED_AFTER_ALERT', 'Executed after each alert');
 define('LABEL_LANGUAGE_SETTING', 'Language');
+define('LABEL_VOICE_SETTING', 'Voice type');
 
 // status.php labels
 ?>
