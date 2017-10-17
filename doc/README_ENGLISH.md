@@ -84,7 +84,8 @@ Whatever you achieve with the Web UI can also be achieved through the API. The A
 | ack | Used to Acknowledge alerts. If ack=1 all pending alerts will be acknowledged. The newest Acknowledged alert can be brought back using ack=0 |
 | json | If json=1 the current status will be returned in JSON format. This comes in handy when using the returned status data in a shell script. |
 | noscript | If noscript=1 the script setup to run whenever an alert was issued will not be executed. |
-| info | This parameter can be used to add some detailed information about the alert (will show up in the log).|
+| speak | The text following this message will be turned into audio and played on alert issuing. |
+| info | This parameter can be used to add some detailed information about the alert (will show up in the log). |
 
 Here is a small example of how to issue an alarm from another computer on the same network using [cURL](https://en.wikipedia.org/wiki/CURL). 
 
@@ -120,6 +121,9 @@ poweroff
 
 **Note: Be careful when setting up a scripts to the "Executed after each alert" option. While issuing a new alarm from within a script is fine for button scripts, asigning such a script to "Executed after each alert" will lead to alerts rucursively creating new alerts, which probably isn't what you want.**
 
+## Using text to speech
+Crystal Signal Pi supports text to speech. By using the "speak" parameter a unique message can be set up for each alert. The text passed by this parameter is converted to speech on alert execution. The text will be handled as English, if the language setting of the Crystal Signal Pi is set to English.
+
 ## Using the log 
 
 Crystal Signal Pi comes with a log containing up to 500 alert messages with the newest alert on the top.
@@ -152,3 +156,9 @@ This work is licensed under the [Creative Commons Attribution 3.0 license](https
 
 Copyright (c) 2009-2015  Nagoya Institute of Technology
                          Department of Computer Science
+
+### espeak
+
+This work is licensed unter version 3 of the GNU General Public License.
+
+Copyright (c) 2007  [Free Software Foundation, Inc.](http://fsf.org/)
