@@ -79,6 +79,10 @@ SERVERVER=master
 
 APT_UPDATE=0
 
+if [ -r /usr/bin/lsb_release ]; then
+    CODENAME=$(/usr/bin/lsb_release -s -c)
+fi
+
 while getopts :r: OPT
 do
     case $OPT in
@@ -142,7 +146,17 @@ function install_crystalsignal
 {
     if [ ! -x $PHP ]; then
         apt_update
-        $APT install -y php
+        case "$CODENAME" in
+            "jessie" )
+                $APT install -y php5
+                ;;
+            "stretch" )
+                $APT install -y php
+                ;;
+            *)
+                $APT install -y php
+                ;;
+        esac
     fi
 
     if [ ! -x $RSYNC ]; then
