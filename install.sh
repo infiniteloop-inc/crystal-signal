@@ -142,7 +142,7 @@ function install_crystalsignal
 {
     if [ ! -x $PHP ]; then
         apt_update
-        $APT install -y php5
+        $APT install -y php
     fi
 
     if [ ! -x $RSYNC ]; then
