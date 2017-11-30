@@ -3,11 +3,11 @@
 ?>
 <!DOCTYPE html>
 <html>
-    <title>Crystal Signal Pi</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="UTF-8">
-
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+        <title><?php echo LABEL_TITLE ?></title>
+
         <!-- jQuery -->
         <Script src="./js/jquery-3.1.1.min.js"></script> 
 
@@ -19,36 +19,11 @@
         <link rel="stylesheet" href="./css/bootstrap-slider-9.5.1.min.css">
         <script src="./js/bootstrap-slider-9.5.1.min.js"></script>
 
+        <!-- stylesheet -->
+        <link rel="stylesheet" href="./css/settings.css">
+
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-
-        <style>
-            html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
-
-            .dropdown-toggle{
-                width: 150px !important;
-            }
-
-            #SliderBrightness .slider-selection {
-                background: #BABABA;
-            }
-
-            .slider-handle {
-                background-image: -webkit-linear-gradient(top, #dfdfdf 0%, #bebebe 100%);
-                background-image: -o-linear-gradient(top, #dfdfdf 0%, #bebebe 100%);
-                background-image: linear-gradient(to bottom, #dfdfdf 0%, #bebebe 100%);
-                background-repeat: repeat-x;
-                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffdfdfdf', endColorstr='#ffbebebe', GradientType=0);
-            }
-
-            .DropDownSpan { display: table-cell; vertical-align: middle; }
-            .block1 { float: left; width: 600px; margin-left: 10px; }
-            .block2 { float: left; width: 600px; margin-left: 10px; }
-            .horizontalSpacer { margin-top:15px;}
-            .buttonBox {float: left; width: 290px; margin-left:10px; }
-            .boxLeft {margin-left:10px; float: left; width: 350px; display: table; }
-            .boxRight {float: left; width: 290px; margin-left:10px; }
-        </style>
     </head>
 
     <body>
