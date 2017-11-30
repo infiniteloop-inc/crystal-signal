@@ -16,8 +16,7 @@ def client(ip, port, message):
         # wait for the python script to produce and send all the data
         sleep(0.3)
         response = sock.recv(1048576)
-        if not "json=1" in message.lower():
-            print "Content-type: text/html \n\n"
+        print "Content-type: text/html \n\n"
         print response
     finally:
         sock.close()
