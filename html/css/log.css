@@ -1,0 +1,59 @@
+/* log.php Styles */
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
+
+.block1 { float: left; width: 600px; margin-left: 10px; }
+.horizontalSpacer { margin-top:15px;}
+
+@media screen and (max-width: 479px) {
+    .buttonBox {
+        float: left;
+        width: 290px;
+        margin-left:10px;
+        margin-top:20px;
+        margin-bottom: 20px;
+    }
+    .block1,.block2,.buttonBox,.sliderBox {
+        max-width: 600px;
+        width: 100%;
+        margin-left: 0;
+    }
+    .innerInputBox {
+        max-width: 400px;
+        width:100%;
+    }
+    .innerButtonBox1 {
+        margin-top:20px;
+        width: 100%;
+    }
+    .innerButtonBox2 {
+        margin: 0;
+    }
+    .slider.slider-horizontal {
+        margin-left: 15px;
+    }
+    .boxLeft {
+        margin-left: 0;
+    }
+    .tooltip.top {
+        display: none;
+    }
+    .panel-body {
+        padding: 10px;
+    }
+
+    .table {
+        border
+    }
+    .table th {
+        background-color:#000;
+        color: #fff;
+        font-weight: bold;
+    }
+    .table td,.table th {
+        float: left;
+        display: block;
+        width: 20%;
+        height:80px;
+        word-wrap: break-word;
+    }
+}

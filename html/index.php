@@ -1,14 +1,13 @@
 <?php
     include_once("./setupLanguage.php");
 ?>
-
 <!DOCTYPE html>
 <html>
-    <title><?php echo LABEL_TITLE ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="UTF-8">
-
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+        <title><?php echo LABEL_TITLE ?></title>
+
         <!-- jQuery -->
         <Script src="./js/jquery-3.1.1.min.js"></script> 
 
@@ -20,9 +19,11 @@
         <link rel="stylesheet" href="./css/bootstrap-slider-9.5.1.min.css">
         <script src="./js/bootstrap-slider-9.5.1.min.js"></script>
 
+        <!-- stylesheet -->
+        <link rel="stylesheet" href="./css/index.css">
+
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-
         
         <!-- set the language. This is only done when there's no language setting -->
         <?php
@@ -30,55 +31,9 @@
                 echo "<script> $.get('ctrl/simpleController.py?settingupsettings=1&language=" . $language . "', function(data, status){});</script>"; 
             }
         ?>
-
-        <style>
-            html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
-
-            #SliderRed .slider-selection {
-                background: red;
-            }
-
-            #SliderGreen .slider-selection {
-                background: green;
-            }
-
-            #SliderBlue .slider-selection {
-                background: blue;
-            }
-
-            #SliderPeriod .slider-selection {
-                background: #BABABA;
-            }
-
-            #SliderRepeat .slider-selection {
-                background: #BABABA;
-            }
-
-            .slider-handle {
-                background-image: -webkit-linear-gradient(top, #dfdfdf 0%, #bebebe 100%);
-                background-image: -o-linear-gradient(top, #dfdfdf 0%, #bebebe 100%);
-                background-image: linear-gradient(to bottom, #dfdfdf 0%, #bebebe 100%);
-                background-repeat: repeat-x;
-                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffdfdfdf', endColorstr='#ffbebebe', GradientType=0);
-            }
-
-            .block1 { float: left; width: 600px; margin-left: 10px; }
-            .block2 { float: left; width: 600px; margin-left: 10px; }
-            .block3 { float: left; width: 600px; margin-left: 10px; }
-
-            .sliderBox {margin-left:10px; float: left; width: 250px; }
-            .buttonBox {float: left; width: 290px; margin-left:10px; }
-
-            .innerButtonBox1 {margin: 0 auto; width: 300px}
-            .innerButtonBox2 {margin: 0 auto; width: 202px}
-            .innerInputBox {width: 480px}
-            .horizontalSpacer { margin-top:15px;}
-
-        </style>
     </head>
 
     <body>
-
         <!-- Navbar -->
         <nav class="navbar navbar-default" >
             <div class="container">
@@ -244,6 +199,7 @@
 
                 function infoTextChange(){
                     SenderObj.updateInfo($("#infoText").val());
+
                 }
 
                 // SLIDERS
@@ -295,7 +251,7 @@
                     SenderObj.updatePeriod(slideEvt.value);
                 });
 
-                    // BUTTONS
+                // BUTTONS
                 $('button[name=btnAckAlarm]').click(function(){
                     $("#showQueryString").val(window.location.href + "ctrl/" + "?ack=1");
                     $.get('ctrl/simpleController.py?ack=1', function(data, status){

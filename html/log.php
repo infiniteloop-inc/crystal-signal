@@ -1,13 +1,12 @@
 <?php
     include_once("./setupLanguage.php");
 ?>
-
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Crystal Signal Pi</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta charset="UTF-8">
+        <title><?php echo LABEL_TITLE ?></title>
 
         <!-- jQuery -->
         <Script src="./js/jquery-3.1.1.min.js"></script> 
@@ -16,19 +15,11 @@
         <link rel="stylesheet" href="./css/bootstrap-3.3.7.min.css">
         <script src="./js/bootstrap-3.3.7.min.js"></script> 
 
+        <!-- stylesheet -->
+        <link rel="stylesheet" href="./css/log.css">
+
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-
-
-
-        <!-- Style settings. Need to move this into another file in the end -->
-        <style>
-            html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
-
-            .block1 { float: left; width: 600px; margin-left: 10px; }
-            .horizontalSpacer { margin-top:15px;}
-
-        </style>
     </head>
     <body>
 
