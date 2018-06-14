@@ -1,38 +1,38 @@
 ## What is this?
 
-This repository contains the middleware needed to run the Crystal Signal Pi hardware, which allows you to turn your Raspberry Pi into a notifier device. 
+This repository contains the middleware needed to run the Crystal Signal Pi hardware, which allows you to turn your Raspberry Pi into a notifier device.
 
 ## What you need
 
-* The Crystal Signal Pi HAT (Hardware Attached on Top) 
+* The Crystal Signal Pi HAT (Hardware Attached on Top)
 * A Raspberry Pi 1, 2 or 3 Model B
-* A micro SD card 
-* A micro USB cable 
+* A micro SD card
+* A micro USB cable
 
-## Installing the middleware 
+## Installing the middleware
 
 ### Get Raspbian
 
-Your Raspberry Pi needs to run an operating system in order to run the Crystal Signal Pi middleware. 
-You can skip this step if you already have one in place. 
+Your Raspberry Pi needs to run an operating system in order to run the Crystal Signal Pi middleware.
+You can skip this step if you already have one in place.
 
 Download [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and install it to the micro SD card following [these instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md).
 *(The Crystal Signal Pi middleware is successfully tested with 2016-09-23-raspbian-jessie-lite and 2017-08-16-raspbian-stretch-lite)*
 
 ### Get the Crystal Signal Pi middleware
 
-So how do you get the middleware on your Raspberry Pi? Just log in to your Raspberry Pi and execute the following commands. Note that you will need root user permissions to get these steps done. 
+So how do you get the middleware on your Raspberry Pi? Just log in to your Raspberry Pi and execute the following commands. Note that you will need root user permissions to get these steps done.
 
 ```
 $ curl -O https://raw.githubusercontent.com/infiniteloop-inc/crystal-signal/master/install.sh
 $ sudo bash install.sh
 ```
 
-The first line gets the installer script file. This script contains all the instructions for the installation process. 
-With the second command we execute the script, resulting in the installation of the Crystal Signal Pi middleware. 
+The first line gets the installer script file. This script contains all the instructions for the installation process.
+With the second command we execute the script, resulting in the installation of the Crystal Signal Pi middleware.
 
 There is also the option to run a "fullinstall". This is a convenient option if you just want to use the Crystal Signal Pi without having to worry about anything at all.
-This will update your Raspbian OS and set the timezone (to the Asia/Tokio timezone. Which is probably not what you want. We need to change this). 
+This will update your Raspbian OS and set the timezone (to the Asia/Tokio timezone. Which is probably not what you want. We need to change this).
 
 *Note that updating the OS takes quite a lot of time. In Some cases you will need to restart your Raspberry Pi after installation has finished.*
 
@@ -42,7 +42,7 @@ $ sudo bash install.sh fullinstall
 
 ### Updating the Crystal Signal Pi
 
-We are still adding new features to the Crystal Signal Pi middleware. 
+We are still adding new features to the Crystal Signal Pi middleware.
 If you want to update to a newer version, just run these commands on your Raspberry Pi.
 
 ```
@@ -50,7 +50,7 @@ $ curl -O https://raw.githubusercontent.com/infiniteloop-inc/crystal-signal/mast
 $ sudo bash install.sh update
 ```
 
-## How to use 
+## How to use
 
 ### Using the Web UI
 
@@ -60,12 +60,12 @@ Here you can set up an alert / blinking pattern and copy the resulting "Alert Ex
 * Moving the sliders should result in different colored light coming from the Crystal Signal Pi.
 * The 3 buttons "On / Flash / Asynch. Flash" allow you to set the mode of the alert.
     * Asynchronous Flash mode is a mode where the red, green and blue colors blink at different speeds.
-* Use the Alert Info field to convey details about the alert. 
+* Use the Alert Info field to convey details about the alert.
 * You can choose whether the Crystal Signal Pi responds to an alert by sending back a HTML or Json message.
 * Acknowledge all pending alerts by pressing the "Acknowledge" button.
-* You can resend an alert with the current settings by clicking the "Send" Button. 
+* You can resend an alert with the current settings by clicking the "Send" Button.
 * Click on the "Log" tab to get an overview of all issued alerts. Starting with the newest on the top.
-* On the "Settings" tab you will find General Settings as well as the setup of the Crystal Signal Pi's Button Scripts (more on that later).  
+* On the "Settings" tab you will find General Settings as well as the setup of the Crystal Signal Pi's Button Scripts (more on that later).
 * The "Status" tab will show you what kind of alert is currently pending.
 
 ![](img/control_en.png)
@@ -82,12 +82,12 @@ Whatever you achieve with the Web UI can also be achieved through the API. The A
 | period | If mode=1 this parameter sets the length of the flashing interval in milliseconds. defaults to 1000ms (1 sec) |
 | repeat | If mode=1 this parameter sets the number of repeats. Defaults to 0, which means that it'll flash forever. |
 | ack | Used to Acknowledge alerts. If ack=1 all pending alerts will be acknowledged. The newest Acknowledged alert can be brought back using ack=0 |
-| json | If json=1 the current status will be returned in JSON format. This comes in handy when using the returned status data in a shell script. |
+| json | If json=1 the current status will be returned in JSON format. This comes in handy when using the returned status data in a shell or python script. Note that the returned status will be the status after the new alert was registered (a new alert gets registered if there is a color parameter). On the other hand, the returned status will be the current status without altering it when there is no color parameter sent with the json=1 parameter. |
 | noscript | If noscript=1 the script setup to run whenever an alert was issued will not be executed. |
 | speak | The text following this message will be turned into audio and played on alert issuing. |
 | info | This parameter can be used to add some detailed information about the alert (will show up in the log). |
 
-Here is a small example of how to issue an alarm from another computer on the same network using [cURL](https://en.wikipedia.org/wiki/CURL). 
+Here is a small example of how to issue an alarm from another computer on the same network using [cURL](https://en.wikipedia.org/wiki/CURL).
 
 ```
 $ curl 'http://172.16.1.10/ctrl/?color=10,200,30&mode=1&repeat=0&period=500'
@@ -106,9 +106,9 @@ In the default setup, the button acts as a acknowledge-all-alerts button when pr
 ![](img/settings_en.png)
 
 You can assign your own scripts to the Crystal Signal Pi by simply dropping them into the /var/lib/crystal-signal/scripts directory.
-After adding a script, it will show up as an entry in the drop down menu of the Settings tab (you may need to reload the page). 
+After adding a script, it will show up as an entry in the drop down menu of the Settings tab (you may need to reload the page).
 
-Here's a small example. By adding the script shown below to /var/lib/crystal-signal/scripts/shutdown.sh, setting it up to be executable (e.g. sudo chmod + x <scriptname>) and assigning it to "Long button press" in the "With all alerts acknowledged" section on the Settings tab, we can get the Raspberry Pi to shutdown when there's no pending alert and the button gets pressed longer then 2 seconds. 
+Here's a small example. By adding the script shown below to /var/lib/crystal-signal/scripts/shutdown.sh, setting it up to be executable (e.g. sudo chmod + x <scriptname>) and assigning it to "Long button press" in the "With all alerts acknowledged" section on the Settings tab, we can get the Raspberry Pi to shutdown when there's no pending alert and the button gets pressed longer then 2 seconds.
 
 ```
 #!/bin/sh
@@ -124,17 +124,17 @@ poweroff
 ## Using text to speech
 Crystal Signal Pi supports text to speech. By using the "speak" parameter a unique message can be set up for each alert. The text passed by this parameter is converted to speech on alert execution. The text will be handled as English, if the language setting of the Crystal Signal Pi is set to English.
 
-## Using the log 
+## Using the log
 
 Crystal Signal Pi comes with a log containing up to 500 alert messages with the newest alert on the top.
 It can be accessed via the Web UI under the "Log" tab.
 
-Each log message contains information about 
+Each log message contains information about
 
 * The date when the alert was issued
 * The IP address of the computer from which the alert was issued
 * The parameter values which were being sent
-* The info message 
+* The info message
 * Whether or not the alarm was acknowledged or still is pending
 
 
