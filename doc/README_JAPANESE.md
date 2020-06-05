@@ -134,6 +134,14 @@ Crystal Signal Piは、発生したアラートのうち直近500件を記憶し
 
 なお、ログはミドルウェアの再起動でクリアされます。恒久的に記録されるわけではないことにご注意ください。
 
+## よくある質問
+
+Q. Rspbian Buster上にインストールしたCrystal Signal Piが動作しませんでした。非対応でしょうか？  
+
+A. 現在Buster上でCrystal Signal Piを動作させるにはインストール時にfullinstallをご指定いただき、  
+   インストール完了後に再起動を行うことで動作させることが可能でございます。  
+   *(2020-02-13-raspbian-buster-liteにおいて動作を確認しています)*
+
 ## ライセンス
 
 ### Crystal Signal Pi Middleware
