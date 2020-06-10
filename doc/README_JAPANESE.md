@@ -142,6 +142,10 @@ A. 現在Buster上でCrystal Signal Piを動作させるにはインストール
    インストール完了後に再起動を行うことで動作させることが可能でございます。  
    *(2020-02-13-raspbian-buster-liteにおいて動作を確認しています)*
 
+Q. RaspberryPi 4 Model Bでは動作しますか？  
+
+A. はい、動作します。（RaspberryPi 4 Model B/4GBモデルを使用し動作確認を行っております）
+
 ## ライセンス
 
 ### Crystal Signal Pi Middleware
