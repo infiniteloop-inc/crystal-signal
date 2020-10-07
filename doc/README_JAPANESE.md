@@ -146,6 +146,22 @@ Q. RaspberryPi 4 Model Bでは動作しますか？
 
 A. はい、動作します。（RaspberryPi 4 Model B/4GBモデルを使用し動作確認を行っております）
 
+## 動作確認済み機種リスト
+
+弊社にて動作確認を行い、動作したものについては ○ がついております。  
+確認には Raspbian Stretch を使用しています。
+
+| 機種名                   | 動作 |
+| :---------------------- | :---: |
+| Raspberry Pi 1 B+       | △   | 
+| Raspberry Pi 2 B        | o   |
+| Raspberry Pi 2 B V1.2   | o   | 
+| Raspberry Pi 3 B        | o   |
+| Raspberry Pi 3 B+       | o   | 
+| Raspberry Pi 4 B        | o   |
+
+Raspberry Pi 1 B+ につきましては動作が重くなる場合がございます。
+
 ## ライセンス
 
 ### Crystal Signal Pi Middleware
